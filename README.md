@@ -1,6 +1,6 @@
 # wheres_my_bus
 
-A new Flutter project.
+A new Flutter project for the CANTO 2025 competition.
 
 ## Getting Started
 
