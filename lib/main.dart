@@ -7,8 +7,9 @@ import 'app_widget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(ModularApp(module: AppModule(), child: const AppWidget()));
+ // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+ // runApp(ModularApp(module: AppModule(), child: const AppWidget()));
+ runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -18,8 +19,42 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: "Where's My Bus?",
       theme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Colors.black,
+        primaryColor: Colors.green[800],
+        colorScheme: ColorScheme.dark(
+          primary: Colors.green[800]!,
+          secondary: Colors.amber[600]!, // Gold/yellow
+//onSurface: Colors.black,
+          surface: Colors.black,
+          onPrimary: Colors.black, // Text color on green
+          onSecondary: Colors.black, // Text color on gold
+          onSurface: Colors.white,
+         // onSurface: Colors.white,
+        ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.white),
+          titleLarge: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 32,
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            textStyle: const TextStyle(fontSize: 18),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+      ),
+      home: SignInPage(),
+      debugShowCheckedModeBanner: false,
+      //theme: ThemeData(
         // This is the theme of your application.
         //
         // TRY THIS: Try running your application with "flutter run". You'll see
@@ -35,13 +70,90 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+        //colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+     // ),
+    //  home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
+class SignInPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Title
+            Padding(
+              padding: const EdgeInsets.only(top: 60.0),
+              child: Center(
+                child: Text(
+                  "Where's My Bus?",
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                    fontFamily: 'Arial', // You can change the font
+                  ),
+                ),
+              ),
+            ),
+
+            // Spacer
+            SizedBox(),
+
+            // Buttons at the bottom
+            Padding(
+              padding: const EdgeInsets.only(bottom: 40.0, left: 20.0, right: 20.0),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                      onPressed: () {
+                        // TODO: Navigate to Passenger Sign In
+                      },
+                      child: Text(
+                        "Sign in as Passenger",
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.yellow[700],
+                      ),
+                      onPressed: () {
+                        // TODO: Navigate to Bus Driver Sign In
+                      },
+                      child: Text(
+                        "Sign in as Bus Driver",
+                        style: TextStyle(fontSize: 18, color: Colors.black),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/*
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -127,3 +239,5 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
+*/
