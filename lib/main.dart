@@ -106,42 +106,128 @@ class SignInPage extends StatelessWidget {
             SizedBox(),
 
             // Buttons at the bottom
+
             Padding(
-              padding: const EdgeInsets.only(bottom: 40.0, left: 20.0, right: 20.0),
-              child: Column(
+               padding: const EdgeInsets.only(bottom: 40.0, left: 20.0, right: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 60,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                      onPressed: () {
-                        // TODO: Navigate to Passenger Sign In
-                      },
-                      child: Text(
-                        "Sign in as Passenger",
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                 // Image.asset(
+                 //   'assets/wheresmybuslogo.jpg',
+                  // height: 120, 
+                  // fit: BoxFit.contain,
+//),
+                  Expanded(
+                    child: SizedBox(
+                       height: MediaQuery.of(context).size.height * 0.45, // half of the screen
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
+                        onPressed: () {
+                           Navigator.push(
+                            context,
+                          MaterialPageRoute(builder: (context) => const PassengerPage()),
+  );
+                        },
+                        child: Text(
+                          "Sign in as a     Passenger",
+                          style: TextStyle(fontSize:24, color: Colors.white),
+                        ),
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 60,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.yellow[700],
-                      ),
-                      onPressed: () {
-                        // TODO: Navigate to Bus Driver Sign In
-                      },
-                      child: Text(
-                        "Sign in as Bus Driver",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                  SizedBox(width: 20),
+                  Expanded(
+                    child: SizedBox(
+                       height: MediaQuery.of(context).size.height * 0.45, // half of the screen
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.yellow[700],
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                             MaterialPageRoute(builder: (context) => const BusDriverSignInPage()),
+                          
+                          );
+                        },
+                        child: Text(
+                          "Sign in as a Bus Driver",
+                          style: TextStyle(fontSize: 24, color: Colors.black),
+                        ),
                       ),
                     ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        )
+      ),
+    );
+  } 
+}
+
+class BusDriverSignInPage extends StatelessWidget {
+  const BusDriverSignInPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text("Bus Driver Page"),
+        backgroundColor: Colors.green[800],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Welcome!",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.yellow[700],
+                    ),
+                    onPressed: () {},
+                    child: const Text("Depart",  style: TextStyle(fontSize: 24, color: Colors.black),),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue[500],
+                        ),
+                    onPressed: () {},
+                    child: const Text("Full Bus",  style: TextStyle(fontSize: 24, color: Colors.white),),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red[400],
+                        ),
+                    onPressed: () {},
+                    child: const Text("Report Road Closure",  style: TextStyle(fontSize: 24, color: Colors.black),),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey,
+                        ),
+                    onPressed: () {},
+                    child: const Text("Settings",  style: TextStyle(fontSize: 24, color: Colors.black),),
                   ),
                 ],
               ),
@@ -152,6 +238,137 @@ class SignInPage extends StatelessWidget {
     );
   }
 }
+
+
+class PassengerPage extends StatefulWidget {
+  const PassengerPage({Key? key}) : super(key: key);
+
+  @override
+  _PassengerPageState createState() => _PassengerPageState();
+}
+
+class _PassengerPageState extends State<PassengerPage> {
+  final TextEditingController _searchController = TextEditingController();
+  final List<String> _favoriteRoutes = [];
+
+  void _addRouteToFavorites(String route) {
+    if (route.isNotEmpty && !_favoriteRoutes.contains(route)) {
+      setState(() {
+        _favoriteRoutes.add(route);
+      });
+    }
+    _searchController.clear();
+  }
+
+  void _removeRoute(String route) {
+    setState(() {
+      _favoriteRoutes.remove(route);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text("Passenger Dashboard"),
+        backgroundColor: Colors.green[800],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Welcome, Passenger!",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Search bar
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: "Search bus routes...",
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      filled: true,
+                      fillColor: Colors.grey[900],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.search, color: Colors.white),
+                        onPressed: () {
+                          _addRouteToFavorites(_searchController.text.trim());
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30),
+
+            const Text(
+              "Favourite Routes:",
+              style: TextStyle(fontSize: 20, color: Colors.white),
+            ),
+            const SizedBox(height: 10),
+
+            Expanded(
+              child: _favoriteRoutes.isEmpty
+                  ? const Center(
+                      child: Text(
+                        "No favourite routes yet.",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _favoriteRoutes.length,
+                      itemBuilder: (context, index) {
+                        final route = _favoriteRoutes[index];
+                        return Card(
+                          color: Colors.green[900],
+                          child: ListTile(
+                            title: Text(route,
+                                style: const TextStyle(color: Colors.white)),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.white),
+                              onPressed: () => _removeRoute(route),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+
+      // Settings floating button
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // TODO: Navigate to settings page
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Settings tapped!')),
+          );
+        },
+        backgroundColor: Colors.yellow[700],
+        child: const Icon(Icons.settings, color: Colors.black),
+      ),
+    );
+  }
+}
+
+
 
 /*
 class MyHomePage extends StatefulWidget {
