@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class BusDriverSignInPage extends StatelessWidget {
-  const BusDriverSignInPage({Key? key}) : super(key: key);
+class DriverHome extends StatelessWidget {
+  const DriverHome({super.key});
 
   @override
   Widget build(BuildContext context) {

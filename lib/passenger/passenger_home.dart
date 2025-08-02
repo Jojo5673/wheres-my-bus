@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-class PassengerPage extends StatefulWidget {
-  const PassengerPage({Key? key}) : super(key: key);
+class PassengerHome extends StatefulWidget {
+  const PassengerHome({super.key});
 
   @override
-  _PassengerPageState createState() => _PassengerPageState();
+  _PassengerHomeState createState() => _PassengerHomeState();
 }
 
-class _PassengerPageState extends State<PassengerPage> {
+class _PassengerHomeState extends State<PassengerHome> {
   final TextEditingController _searchController = TextEditingController();
   final List<String> _favoriteRoutes = [];
 
@@ -29,23 +30,26 @@ class _PassengerPageState extends State<PassengerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text("Passenger Dashboard"),
-        backgroundColor: Colors.green[800],
+        title: Text("Passenger Dashboard"),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person, color: Colors.white),
+            onPressed: () {
+              context.push('/profile');
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "Welcome, Passenger!",
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 20),
 

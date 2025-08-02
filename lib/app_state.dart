@@ -5,9 +5,21 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:wheres_my_bus/firebase_options.dart';
 
+enum UserType {
+  passenger,
+  driver,
+}
+
 class AppState extends ChangeNotifier{
   AppState(){
     init();
+  }
+
+  UserType? _userType = UserType.passenger;
+  UserType? get userType => _userType;
+  void setUserType(UserType type) {
+    _userType = type;
+    notifyListeners();
   }
 
   bool _loggedIn = false;
