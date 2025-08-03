@@ -2,10 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wheres_my_bus/app_state.dart';
-import 'package:wheres_my_bus/widgets/auth_widgets.dart';
 import 'package:go_router/go_router.dart';
 
 class LandingPage extends StatefulWidget {
+  const LandingPage({super.key});
+
   @override
   _LandingPageState createState() => _LandingPageState();
 }
@@ -27,7 +28,10 @@ class _LandingPageState extends State<LandingPage> {
         _startRedirectTimer();
       }
     });
-    appState = Provider.of<AppState>(context, listen: false);
+    appState = context.read<AppState>();
+    if (appState == null){
+      print("AppState is null at landing page");
+    }
   }
 
   void _startRedirectTimer() {
@@ -35,9 +39,11 @@ class _LandingPageState extends State<LandingPage> {
       if (!mounted) return; // Safety check
 
       if (appState!.loggedIn) {
-        if (appState!.userType == UserType.driver) {
+        final userType = appState!.userType;
+        print("User is logged in, redirecting to $userType");
+        if (userType == UserType.driver) {
           context.pushReplacement('/driver');
-        } else if (appState!.userType == UserType.passenger) {
+        } else if (userType == UserType.passenger) {
           context.pushReplacement('/passenger');
         }
       }
@@ -98,13 +104,60 @@ class _LandingPageState extends State<LandingPage> {
                       ],
                     );
                   }
-                  return Signin(setUser: appState!.setUserType);
+                  return LoginButtons();
                 }()
                 : SizedBox.shrink(),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+
+class LoginButtons extends StatelessWidget {
+  const LoginButtons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        SizedBox(
+          height: 60, // half of the screen
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+            ),
+            onPressed: () {
+              context.push('/sign-in');
+            },
+            child: Text(
+              "Sign in",
+              style: TextStyle(fontSize: 24, color: Colors.white),
+            ),
+          ),
+        ),
+        SizedBox(height: 20),
+        SizedBox(
+          height: 60,
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.yellow[700],
+            ),
+            onPressed: () {
+              context.push('/sign-up');
+            },
+            child: Text(
+              "Register",
+              style: TextStyle(fontSize: 24, color: Colors.black),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

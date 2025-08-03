@@ -29,10 +29,13 @@ class _PassengerHomeState extends State<PassengerHome> {
 
   @override
   Widget build(BuildContext context) {
+    var textTheme = Theme.of(context).textTheme;
+    var colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Passenger Dashboard"),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: colorScheme.primary,
         actions: [
           IconButton(
             icon: const Icon(Icons.person, color: Colors.white),
@@ -49,7 +52,7 @@ class _PassengerHomeState extends State<PassengerHome> {
           children: [
             Text(
               "Welcome, Passenger!",
-              style: Theme.of(context).textTheme.titleMedium,
+              style: textTheme.titleMedium,
             ),
             const SizedBox(height: 20),
 
@@ -59,12 +62,12 @@ class _PassengerHomeState extends State<PassengerHome> {
                 Expanded(
                   child: TextField(
                     controller: _searchController,
-                    style: const TextStyle(color: Colors.white),
+                    style: textTheme.bodyMedium,
                     decoration: InputDecoration(
                       hintText: "Search bus routes...",
                       hintStyle: TextStyle(color: Colors.grey[400]),
                       filled: true,
-                      fillColor: Colors.grey[900],
+                      fillColor: Theme.of(context).scaffoldBackgroundColor,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -81,19 +84,19 @@ class _PassengerHomeState extends State<PassengerHome> {
             ),
             const SizedBox(height: 30),
 
-            const Text(
+            Text(
               "Favourite Routes:",
-              style: TextStyle(fontSize: 20, color: Colors.white),
+              style: textTheme.bodyMedium,
             ),
             const SizedBox(height: 10),
 
             Expanded(
               child:
                   _favoriteRoutes.isEmpty
-                      ? const Center(
+                      ? Center(
                         child: Text(
                           "No favourite routes yet.",
-                          style: TextStyle(color: Colors.grey),
+                          style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
                         ),
                       )
                       : ListView.builder(
@@ -105,7 +108,7 @@ class _PassengerHomeState extends State<PassengerHome> {
                             child: ListTile(
                               title: Text(
                                 route,
-                                style: const TextStyle(color: Colors.white),
+                                style: textTheme.bodyMedium,
                               ),
                               trailing: IconButton(
                                 icon: const Icon(
@@ -131,8 +134,8 @@ class _PassengerHomeState extends State<PassengerHome> {
             context,
           ).showSnackBar(const SnackBar(content: Text('Settings tapped!')));
         },
-        backgroundColor: Colors.yellow[700],
-        child: const Icon(Icons.settings, color: Colors.black),
+        backgroundColor: colorScheme.secondary,
+        child: Icon(Icons.settings, color: colorScheme.onSecondary),
       ),
     );
   }

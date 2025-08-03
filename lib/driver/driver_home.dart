@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class DriverHome extends StatelessWidget {
   const DriverHome({super.key});
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text("Bus Driver Page"),
-        backgroundColor: Colors.green[800],
+       appBar: AppBar(
+        title: Text("Driver Dashboard"),
+        backgroundColor: colorScheme.primary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person, color: Colors.white),
+            onPressed: () {
+              context.push('/profile');
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
