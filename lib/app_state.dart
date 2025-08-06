@@ -27,7 +27,7 @@ class AppState extends ChangeNotifier {
   Future<void> refreshUserType() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     print("Refreshing user type for UID: $uid");
-    if (uid == null) return null;
+    if (uid == null) return;
 
     final doc =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();
@@ -75,7 +75,6 @@ class AppState extends ChangeNotifier {
   /// Deletes the user's entry in Firestore and, optionally,
   /// removes any subcollections they may have.
   Future<void> removeUser(User user) async {
-    print("Removing user ${user.uid} from Firestore");
     try {
       final firestore = FirebaseFirestore.instance;
       final userDoc = await firestore.collection('users').doc(user.uid).get();
