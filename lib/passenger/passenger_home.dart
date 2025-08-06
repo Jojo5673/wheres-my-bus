@@ -129,13 +129,13 @@ class _PassengerHomeState extends State<PassengerHome> {
       // Settings floating button
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Navigate to settings page
+          // TODO: Navigate to maps page
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(const SnackBar(content: Text('Settings tapped!')));
+          ).showSnackBar(const SnackBar(content: Text('Maps tapped!')));
         },
         backgroundColor: colorScheme.secondary,
-        child: Icon(Icons.settings, color: colorScheme.onSecondary),
+        child: Icon(Icons.map, color: colorScheme.onSecondary),
       ),
     );
   }
