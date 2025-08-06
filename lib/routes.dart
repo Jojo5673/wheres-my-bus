@@ -19,22 +19,13 @@ final router = GoRouter(
           path: '/forgot-password',
           builder: (context, state) {
             final arguments = state.uri.queryParameters;
-            return ForgotPasswordScreen(
-              email: arguments['email'],
-              headerMaxExtent: 200,
-            );
+            return ForgotPasswordScreen(email: arguments['email'], headerMaxExtent: 200);               
           },
         ),
       ],
     ),
-    GoRoute(
-      path: '/profile',
-      builder: (context, state) => Profile(context, state),
-    ),
-    GoRoute(
-      path: '/sign-up',
-      builder: (context, state) => SignUp(context, state),
-    ),
+    GoRoute(path: '/sign-up', builder: (context, state) => SignUp(context, state)),
+    GoRoute(path: '/profile', builder: (context, state) => Profile(context, state)),
     GoRoute(path: '/passenger', builder: (context, state) => PassengerHome()),
     GoRoute(path: '/driver', builder: (context, state) => DriverHome()),
   ],

@@ -68,7 +68,7 @@ class AppState extends ChangeNotifier {
     });
 
     await firestore.collection('${type.name}s').doc(user.uid).set({
-      'name': user.displayName ?? user.email?.split('@')[0] ?? 'Unknown',
+      'routes': [],
     });
   }
 
