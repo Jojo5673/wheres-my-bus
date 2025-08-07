@@ -5,6 +5,7 @@ import 'package:wheres_my_bus/pages/landing_page.dart';
 import 'package:wheres_my_bus/pages/login.dart';
 import 'package:wheres_my_bus/pages/profile.dart';
 import 'package:wheres_my_bus/pages/register.dart';
+import 'package:wheres_my_bus/passenger/live_map.dart';
 import 'package:wheres_my_bus/passenger/passenger_home.dart';
 
 final router = GoRouter(
@@ -13,7 +14,7 @@ final router = GoRouter(
     GoRoute(path: '/', builder: (context, state) => LandingPage()),
     GoRoute(
       path: '/sign-in',
-      builder: (context, state) => Login(context, state),
+      builder: (context, state) => Login(),
       routes: [
         GoRoute(
           path: '/forgot-password',
@@ -24,9 +25,11 @@ final router = GoRouter(
         ),
       ],
     ),
-    GoRoute(path: '/sign-up', builder: (context, state) => Register(context, state)),
-    GoRoute(path: '/profile', builder: (context, state) => Profile(context, state)),
-    GoRoute(path: '/passenger', builder: (context, state) => PassengerHome()),
+    GoRoute(path: '/sign-up', builder: (context, state) => Register()),
+    GoRoute(path: '/profile', builder: (context, state) => Profile()),
+    GoRoute(path: '/passenger', builder: (context, state) => PassengerHome(), routes: [
+      GoRoute(path: '/map', builder: (context, state) => LiveMap()),
+    ]),
     GoRoute(path: '/driver', builder: (context, state) => DriverHome()),
   ],
 );
