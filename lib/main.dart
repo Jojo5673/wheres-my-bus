@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
           onPrimary: Colors.black, // Text color on green
           onSecondary: Colors.black, // Text color on gold
           onSurface: Colors.white,
+          primaryContainer: Colors.grey[800]!
           // onSurface: Colors.white,
         ),
         textTheme: const TextTheme(

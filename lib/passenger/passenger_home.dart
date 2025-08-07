@@ -34,7 +34,8 @@ class _PassengerHomeState extends State<PassengerHome> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Passenger Dashboard"),
+        title: Text("Routes"),
+        centerTitle: true,
         backgroundColor: colorScheme.primary,
         actions: [
           IconButton(
@@ -44,6 +45,9 @@ class _PassengerHomeState extends State<PassengerHome> {
             },
           ),
         ],
+      ),
+      drawer: Drawer(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
