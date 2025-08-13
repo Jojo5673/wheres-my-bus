@@ -73,22 +73,22 @@ class _RouteAdminScreenState extends State<RouteAdminScreen> {
     setState(() => _isSaving = true);
 
     try {
-      // Convert stops input fields into List<Map<String, LatLng>>
-      List<Map<String, LatLng>> parsedStops =
-          stops.map((stop) {
-            final name = stop['name'].toString().trim();
-            final lat = double.parse(stop['lat'].toString());
-            final lng = double.parse(stop['lng'].toString());
-            return {name: LatLng(lat, lng)};
-          }).toList();
+      Map<String, LatLng> parsedStops = {};
+      for (var stop in stops) {
+        final name = stop['name'].toString().trim();
+        final lat = double.parse(stop['lat'].toString());
+        final lng = double.parse(stop['lng'].toString());
+        parsedStops[name] = LatLng(lat, lng);
+      }
 
+      // For polyline service, you'll need just the LatLng points
       List<LatLng> polylinePoints = await PolylineService.getRoute(parsedStops);
 
       final route = BusRoute(
         routeNumber: _routeNumberController.text.trim(),
         color: selectedColor,
         polylinePoints: polylinePoints,
-        stops: parsedStops,
+        stops: parsedStops, // Now this matches Map<String, LatLng>
         liveDrivers: [],
       );
 
@@ -219,50 +219,52 @@ class _RouteAdminScreenState extends State<RouteAdminScreen> {
 }
 
 class PolylineService {
-  static Future<List<LatLng>> getRoute(List<Map<String, LatLng>> stops) async {
-    String waypoints = '';
-    if (stops.length > 2) {
-      waypoints =
-          '&waypoints=${stops.sublist(1, stops.length - 1).map((s) => '${s.values.first.latitude},${s.values.first.longitude}').join('|')}';
-    }
-
-    LatLng origin = stops.first.values.first;
-    LatLng destination = stops.last.values.first;
-
-    final url =
-        'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}$waypoints&mode=driving&key=$MAPS_KEY';
-
-    try {
-      // Using dart:io HttpClient instead of http package
-      HttpClient client = HttpClient();
-      HttpClientRequest request = await client.getUrl(Uri.parse(url));
-      HttpClientResponse response = await request.close();
-
-      String responseBody = await response.transform(utf8.decoder).join();
-
-      if (response.statusCode == 200) {
-        final data = json.decode(responseBody);
-
-        print('API Status: ${data['status']}');
-
-        if (data['status'] == 'OK' && data['routes'].isNotEmpty) {
-          String encodedPolyline = data['routes'][0]['overview_polyline']['points'];
-          print('Encoded polyline received, length: ${encodedPolyline.length}');
-          return _decodePolyline(encodedPolyline);
-        } else {
-          print('API Error: ${data['error_message'] ?? data['status']}');
-        }
-      } else {
-        print('HTTP Error ${response.statusCode}: $responseBody');
-      }
-
-      client.close();
-      return [];
-    } catch (e) {
-      print('Request Error: $e');
-      return [];
-    }
+  static Future<List<LatLng>> getRoute(Map<String, LatLng> stops) async {
+  List<LatLng> stopPoints = stops.values.toList();
+  print(stops);
+  
+  String waypoints = '';
+  if (stopPoints.length > 2) {
+    waypoints = '&waypoints=${stopPoints.sublist(1, stopPoints.length - 1)
+        .map((point) => '${point.latitude},${point.longitude}').join('|')}';
   }
+
+  LatLng origin = stopPoints.first;
+  LatLng destination = stopPoints.last;
+
+  final url =
+      'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}$waypoints&mode=driving&key=$MAPS_KEY';
+
+  try {
+    HttpClient client = HttpClient();
+    HttpClientRequest request = await client.getUrl(Uri.parse(url));
+    HttpClientResponse response = await request.close();
+
+    String responseBody = await response.transform(utf8.decoder).join();
+
+    if (response.statusCode == 200) {
+      final data = json.decode(responseBody);
+
+      print('API Status: ${data['status']}');
+
+      if (data['status'] == 'OK' && data['routes'].isNotEmpty) {
+        String encodedPolyline = data['routes'][0]['overview_polyline']['points'];
+        print('Encoded polyline received, length: ${encodedPolyline.length}');
+        return _decodePolyline(encodedPolyline);
+      } else {
+        print('API Error: ${data['error_message'] ?? data['status']}');
+      }
+    } else {
+      print('HTTP Error ${response.statusCode}: $responseBody');
+    }
+
+    client.close();
+    return [];
+  } catch (e) {
+    print('Request Error: $e');
+    return [];
+  }
+}
 
   static List<LatLng> _decodePolyline(String encoded) {
     List<LatLng> points = [];

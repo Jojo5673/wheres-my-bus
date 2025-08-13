@@ -6,7 +6,7 @@ class BusRoute {
   String routeNumber;
   Color color;
   List<LatLng> polylinePoints;
-  List<Map<String, LatLng>> stops;
+  Map<String, LatLng> stops;
   List<String> liveDrivers;
 
   BusRoute({
@@ -24,15 +24,10 @@ class BusRoute {
           polylinePoints
               .map((point) => {'latitude': point.latitude, 'longitude': point.longitude})
               .toList(),
-      'stops':
-          stops.map((stop) {
-            // Convert each stop's LatLng values to GeoPoint or lat/lng map
-            Map<String, dynamic> stopMap = {};
-            stop.forEach((key, latLng) {
-              stopMap[key] = {'latitude': latLng.latitude, 'longitude': latLng.longitude};
-            });
-            return stopMap;
-          }).toList(),
+      'stops': stops.map(
+        (key, latLng) =>
+            MapEntry(key, {'latitude': latLng.latitude, 'longitude': latLng.longitude}),
+      ),
       'liveDrivers': liveDrivers,
     };
   }
@@ -47,16 +42,16 @@ class BusRoute {
               .toList() ??
           [],
       stops:
-          (map['stops'] as List<dynamic>?)?.map((stop) {
-            Map<String, LatLng> stopMap = {};
-            (stop as Map<String, dynamic>).forEach((key, value) {
-              if (value is Map<String, dynamic>) {
-                stopMap[key] = LatLng(value['latitude'] as double, value['longitude'] as double);
-              }
-            });
-            return stopMap;
-          }).toList() ??
-          [],
+          (map['stops'] as Map<String, dynamic>?)?.map((key, value) {
+            if (value is Map<String, dynamic>) {
+              return MapEntry(
+                key,
+                LatLng(value['latitude'] as double, value['longitude'] as double),
+              );
+            }
+            return MapEntry(key, LatLng(0.0, 0.0)); // fallback
+          }) ??
+          {},
       liveDrivers: List<String>.from(map['liveDrivers'] ?? []),
     );
   }

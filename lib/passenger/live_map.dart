@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:wheres_my_bus/models/route.dart';
+import 'package:wheres_my_bus/models/routeManager.dart';
 import 'package:wheres_my_bus/widgets/search_bar.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -17,6 +19,15 @@ class _LiveMapState extends State<LiveMap> {
   Stream<Position>? _positionStream;
   List<LatLng> polylineCoords = [];
   CameraPosition? _lastCameraPosition;
+  List<BusRoute> routes = [];
+  final RouteManager _routeManager = RouteManager();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPermissionsAndStartStream();
+    _fetchRoutes();
+  }
 
   void _onMapCreated(GoogleMapController controller) async {
     mapController = controller;
@@ -26,10 +37,11 @@ class _LiveMapState extends State<LiveMap> {
     _lastCameraPosition = position;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _checkPermissionsAndStartStream();
+  Future<void> _fetchRoutes() async {
+    final newRoutes = await _routeManager.getAll();
+    setState(() {
+      routes = newRoutes;
+    });
   }
 
   Future<void> _goToCurrentLocation() async {
@@ -139,90 +151,112 @@ class _LiveMapState extends State<LiveMap> {
     );
   }
 
+  Set<Polyline> generatePolylinesFromRoutes() {
+    Set<Polyline> polylines = {};
+
+    for (BusRoute route in routes) {
+      if (route.polylinePoints.isNotEmpty) {
+        polylines.add(
+          Polyline(
+            polylineId: PolylineId('route_${route.routeNumber}'),
+            points: route.polylinePoints,
+            width: 5,
+            color: route.color,
+            geodesic: true,
+            startCap: Cap.roundCap,
+            endCap: Cap.roundCap,
+            jointType: JointType.round,
+            consumeTapEvents: true,
+            onTap: () => debugPrint('Tapped ${route.routeNumber}'),
+          ),
+        );
+      }
+    }
+
+    return polylines;
+  }
+
+  Set<Marker> _generateStopMarkers() {
+    Set<Marker> markers = {};
+
+    for (BusRoute route in routes) {
+      route.stops.forEach((stopName, stopLocation) {
+        HSVColor hsvColor = HSVColor.fromColor(route.color);
+        markers.add(
+          Marker(
+            markerId: MarkerId('${route.routeNumber}_$stopName'),
+            position: stopLocation,
+            infoWindow: InfoWindow(title: stopName, snippet: 'Route ${route.routeNumber}'),
+            icon: BitmapDescriptor.defaultMarkerWithHue(hsvColor.hue),
+          ),
+        );
+      });
+    }
+
+    return markers;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          SafeArea(
-            child:
-                _errorMessage != null
-                    ? _buildErrorWidget()
-                    : !_permissionsChecked
-                    ? const Center(child: CircularProgressIndicator())
-                    : StreamBuilder<Position>(
-                      stream: _positionStream,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        }
+      body: SafeArea(
+        child: Stack(
+          children: [
+            _errorMessage != null
+                ? _buildErrorWidget()
+                : !_permissionsChecked
+                ? const Center(child: CircularProgressIndicator())
+                : StreamBuilder<Position>(
+                  stream: _positionStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
 
-                        if (snapshot.hasData) {
-                          final position = snapshot.data!;
-                          return GoogleMap(
-                            onMapCreated: _onMapCreated,
-                            initialCameraPosition: CameraPosition(
-                              target: LatLng(position.latitude, position.longitude),
-                              zoom: 17.0,
-                              tilt: 60.0,
-                            ),
-                            myLocationEnabled: true,
-                            trafficEnabled: true,
-                            myLocationButtonEnabled: true,
-                            compassEnabled: false,
-                            zoomControlsEnabled: false,
-                            onCameraMove: (position) => _onCameraMove(position),
-                            markers: <Marker>{
-                              Marker(
-                                markerId: const MarkerId('user_location'),
-                                position: LatLng(position.latitude, position.longitude),
-                                icon: BitmapDescriptor.defaultMarker,
-                              ),
-                            },
-                            polylines: {
-                              Polyline(
-                                // Polyline id must be unique.
-                                polylineId: PolylineId('titanic route'),
-                                points: [
-                                  LatLng(50.90, -1.41), // Southampton
-                                  LatLng(49.65, -1.60), // Cherbourg
-                                  LatLng(49.77, -6.71),
-                                  LatLng(51.83, -8.28), // Cobh
-                                  LatLng(50.96, -8.58),
-                                  LatLng(41.75, -49.90), // Wreck
-                                ],
-                                width: 5,
-                                color: Colors.red,
-                                geodesic: true,
-                                // Custom caps and joint types aren't supported on all platforms.
-                                startCap: Cap.roundCap,
-                                endCap: Cap.roundCap,
-                                jointType: JointType.round,
-                                consumeTapEvents: true,
-                                onTap: () => debugPrint('clicked route'),
-                              ),
-                            },
-                          );
-                        }
+                    if (snapshot.hasData) {
+                      final position = snapshot.data!;
+                      return GoogleMap(
+                        onMapCreated: _onMapCreated,
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(position.latitude, position.longitude),
+                          zoom: 17.0,
+                          tilt: 60.0,
+                        ),
+                        cameraTargetBounds: CameraTargetBounds(
+                          LatLngBounds(
+                            northeast: LatLng(18.9065602210206, -75.41288402413825),
+                            southwest: LatLng(17.44059194404681, -79.25960397396844),
+                          ),
+                        ),
+                        minMaxZoomPreference: MinMaxZoomPreference(9, 20),
+                        myLocationEnabled: true,
+                        myLocationButtonEnabled: false,
+                        compassEnabled: false,
+                        zoomControlsEnabled: false,
+                        onCameraMove: (position) => _onCameraMove(position),
+                        polylines: generatePolylinesFromRoutes(),
+                        markers: _generateStopMarkers(),
+                      );
+                    }
 
-                        return const Center(child: CircularProgressIndicator());
-                      },
-                    ),
-          ),
+                    return const Center(child: CircularProgressIndicator());
+                  },
+                ),
 
-          const FloatingSearch(),
-          Positioned(
-            bottom: 70, // Custom position
-            right: 16,
-            child: FloatingActionButton(
-              mini: true,
-              backgroundColor: Colors.white,
-              onPressed: _goToCurrentLocation,
-              child: Icon(Icons.my_location, color: Colors.blue),
+            const FloatingSearch(hint: "Add Routes ..."),
+            Positioned(
+              bottom: 16, // Custom position
+              right: 16,
+              child: FloatingActionButton(
+                mini: true,
+                backgroundColor: Colors.white,
+                onPressed: _goToCurrentLocation,
+                child: Icon(Icons.my_location, color: Colors.blue),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
