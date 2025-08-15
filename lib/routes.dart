@@ -1,12 +1,12 @@
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:go_router/go_router.dart';
-import 'package:wheres_my_bus/driver/driver_home.dart';
+import 'package:wheres_my_bus/pages/driver/driver_home.dart';
 import 'package:wheres_my_bus/pages/landing_page.dart';
 import 'package:wheres_my_bus/pages/login.dart';
 import 'package:wheres_my_bus/pages/profile.dart';
 import 'package:wheres_my_bus/pages/register.dart';
-import 'package:wheres_my_bus/passenger/live_map.dart';
-import 'package:wheres_my_bus/passenger/passenger_home.dart';
+import 'package:wheres_my_bus/pages/passenger/live_map.dart';
+import 'package:wheres_my_bus/pages/passenger/passenger_home.dart';
 
 final router = GoRouter(
   initialLocation: '/',

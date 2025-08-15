@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:wheres_my_bus/models/route.dart';
 import 'package:wheres_my_bus/models/routeManager.dart';
-import 'package:wheres_my_bus/widgets/search_bar.dart';
+import 'package:wheres_my_bus/widgets/floating_route_search.dart';
 import 'package:geolocator/geolocator.dart';
 
 class LiveMap extends StatefulWidget {
@@ -198,6 +199,7 @@ class _LiveMapState extends State<LiveMap> {
 
   @override
   Widget build(BuildContext context) {
+    var colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SafeArea(
@@ -234,6 +236,7 @@ class _LiveMapState extends State<LiveMap> {
                         myLocationButtonEnabled: false,
                         compassEnabled: false,
                         zoomControlsEnabled: false,
+                        mapToolbarEnabled: false,
                         onCameraMove: (position) => _onCameraMove(position),
                         polylines: generatePolylinesFromRoutes(),
                         markers: _generateStopMarkers(),
@@ -249,10 +252,9 @@ class _LiveMapState extends State<LiveMap> {
               bottom: 16, // Custom position
               right: 16,
               child: FloatingActionButton(
-                mini: true,
-                backgroundColor: Colors.white,
+                backgroundColor: colorScheme.secondary,
                 onPressed: _goToCurrentLocation,
-                child: Icon(Icons.my_location, color: Colors.blue),
+                child: Icon(Icons.my_location, color: colorScheme.onSecondary,),
               ),
             ),
           ],
