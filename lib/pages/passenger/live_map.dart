@@ -87,7 +87,9 @@ class _LiveMapState extends State<LiveMap> {
         ),
       );
     } catch (e) {
-      print('Error getting current location: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Route saved')));
+      }
     }
   }
 
@@ -145,9 +147,9 @@ class _LiveMapState extends State<LiveMap> {
 
   void _listenToLiveDrivers() {
     _driversSubscription?.cancel();
-    
+
     if (routes.isEmpty) return; // Don't start if no routes
-    
+
     _driversSubscription = _driverManager
         .getLiveDriversForRoutes(routes.map((route) => route.routeNumber).toList())
         .listen(
@@ -157,7 +159,10 @@ class _LiveMapState extends State<LiveMap> {
           onError: (error) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error tracking buses: $error'), backgroundColor: Colors.red),
+                SnackBar(
+                  content: Text('Error tracking buses: $error'),
+                  backgroundColor: Colors.red,
+                ),
               );
             }
           },
@@ -184,39 +189,8 @@ class _LiveMapState extends State<LiveMap> {
         _driverMarkers.add(driverMarker);
       }
     }
-    
-    setState(() {}); // Trigger rebuild to show updated markers
-  }
 
-  Widget _buildErrorWidget() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.location_off, size: 64, color: Colors.grey[600]),
-            const SizedBox(height: 16),
-            Text(
-              _errorMessage!,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _errorMessage = null;
-                  _permissionsChecked = false;
-                });
-                _checkPermissionsAndStartStream();
-              },
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      ),
-    );
+    setState(() {}); // Trigger rebuild to show updated markers
   }
 
   Set<Polyline> generatePolylinesFromRoutes() {
@@ -270,6 +244,37 @@ class _LiveMapState extends State<LiveMap> {
     allMarkers.addAll(_generateStopMarkers());
     allMarkers.addAll(_driverMarkers);
     return allMarkers;
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.location_off, size: 64, color: Colors.grey[600]),
+            const SizedBox(height: 16),
+            Text(
+              _errorMessage!,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _errorMessage = null;
+                  _permissionsChecked = false;
+                });
+                _checkPermissionsAndStartStream();
+              },
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override

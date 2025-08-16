@@ -37,7 +37,6 @@ class _LiveRouteState extends State<LiveRoute> {
       setState(() => _isStreaming = true);
       await _driverManager.startLocationStreaming(driverId, widget.route.routeNumber);
     } on LocationServiceDisabledException catch (e) {
-      print("Caught");
       if (mounted) {
         setState(() => _isStreaming = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,7 +89,12 @@ class _LiveRouteState extends State<LiveRoute> {
       await _driverManager.stopLiveTracking(driverId);
       setState(() => _isStreaming = false);
     } catch (e) {
-      print('Error stopping live tracking: $e');
+      if (mounted) {
+        setState(() => _isStreaming = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to stop live tracking: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 

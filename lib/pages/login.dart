@@ -5,9 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:wheres_my_bus/app_state.dart';
 
 class Login extends StatelessWidget {
-  const Login({
-    super.key,
-  });
+  const Login({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,11 +39,14 @@ class Login extends StatelessWidget {
         AuthStateChangeAction<SignedIn>((context, state) async {
           final appState = Provider.of<AppState>(context, listen: false);
           await appState.refreshUserType();
-          print("Going to ${appState.userType}");
-          if (appState.userType == UserType.driver) {
-            context.go('/driver');
-          } else {
-            context.go('/passenger');
+          //print("Going to ${appState.userType}");
+          if (context.mounted) {
+            //print("Going to ${appState.userType}");
+            if (appState.userType == UserType.driver) {
+              context.go('/driver');
+            } else {
+              context.go('/passenger');
+            }
           }
         }),
       ],

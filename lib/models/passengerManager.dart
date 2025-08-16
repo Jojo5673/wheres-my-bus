@@ -15,6 +15,8 @@ class Passengermanager {
     }
   }
 
+  //TODO: get favourites
+
    Future<void> updateFavourites(String passengerId, List<String> favourites) async {
     try {
       await _collection.doc(passengerId).update({

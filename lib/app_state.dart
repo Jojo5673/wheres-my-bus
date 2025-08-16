@@ -30,7 +30,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> refreshUserType() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    print("Refreshing user type for UID: $uid");
+    // print("Refreshing user type for UID: $uid");
     if (uid == null) return;
 
     final doc =
@@ -40,7 +40,7 @@ class AppState extends ChangeNotifier {
     setUserType(
       type == "driver" ? UserType.driver : UserType.passenger,
     ); // Default to passenger
-    print("User type of $type set to $_userType");
+    // print("User type of $type set to $_userType");
   }
 
   Future<void> init() async {
@@ -54,7 +54,7 @@ class AppState extends ChangeNotifier {
       if (user != null) {
         _loggedIn = true;
         refreshUserType();
-        print("Signed in as ${user.uid}");
+        // print("Signed in as ${user.uid}");
       } else {
         _loggedIn = false;
       }
@@ -99,7 +99,7 @@ class AppState extends ChangeNotifier {
       batch.delete(firestore.collection('users').doc(user.uid));
       batch.delete(firestore.collection('${userType}s').doc(user.uid));
       await batch.commit();
-      print('Deleted Firestore record for uid=${user.uid}');
+      // print('Deleted Firestore record for uid=${user.uid}');
     } catch (err, stackTrace) {
       print('Error deleting uid=${user.uid}: $err\n$stackTrace');
       rethrow; // or convert to custom error

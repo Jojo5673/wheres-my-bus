@@ -8,7 +8,7 @@ class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
 
   @override
-  _LandingPageState createState() => _LandingPageState();
+  State<LandingPage> createState() => _LandingPageState();
 }
 
 class _LandingPageState extends State<LandingPage> {
@@ -30,7 +30,7 @@ class _LandingPageState extends State<LandingPage> {
     });
     appState = context.read<AppState>();
     if (appState == null){
-      print("AppState is null at landing page");
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error: Cannot read app state")));
     }
   }
 
@@ -40,7 +40,7 @@ class _LandingPageState extends State<LandingPage> {
 
       if (appState!.loggedIn) {
         final userType = appState!.userType;
-        print("User is logged in, redirecting to $userType");
+        //print("User is logged in, redirecting to $userType");
         if (userType == UserType.driver) {
           context.pushReplacement('/driver');
         } else if (userType == UserType.passenger) {

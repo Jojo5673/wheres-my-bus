@@ -5,9 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:wheres_my_bus/app_state.dart';
 
 class Profile extends StatelessWidget {
-  const Profile({
-    super.key,
-  });
+  const Profile({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +17,11 @@ class Profile extends StatelessWidget {
         }),
         AccountDeletedAction((context, user) {
           final appState = Provider.of<AppState>(context, listen: false);
-          appState.removeUser(user);
+          try {
+            appState.removeUser(user);
+          } on Exception catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+          }
         }),
       ],
       appBar: AppBar(

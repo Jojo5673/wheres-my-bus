@@ -26,7 +26,6 @@ class Register extends StatelessWidget {
               return;
             }
             if (state is UserCreated) {
-              print("Check user email isnt null in routes: ${user.email}");
               user.updateDisplayName(user.email!.split('@')[0]);
               appState.addUser(user, appState.userType);
             }
@@ -39,7 +38,7 @@ class Register extends StatelessWidget {
               );
               ScaffoldMessenger.of(context).showSnackBar(snackBar);
             }
-            print("Going to ${appState.userType}");
+            //print("Going to ${appState.userType}");
             if (appState.userType == UserType.driver) {
               context.go('/driver');
             } else {

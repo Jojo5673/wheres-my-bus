@@ -32,6 +32,8 @@ class Drivermanager {
     }
   }
 
+//TODO: get assigned
+
   Future<void> updateAssigned(String driverId, List<String> routes) async {
     try {
       await _collection.doc(driverId).update({
@@ -55,20 +57,6 @@ class Drivermanager {
     }
   }
 
-  Future<void> stopLiveTracking(String driverId) async {
-    try {
-      await _collection.doc(driverId).update({
-        'activeRoute': null,
-        'isLive': false,
-        'location': null,
-        'lastUpdated': FieldValue.serverTimestamp(),
-      });
-      _locationSubscription?.cancel();
-    } catch (e) {
-      throw Exception('Failed to stop live tracking: $e');
-    }
-  }
-
   Future<bool> _handleLocationPermission() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -77,7 +65,6 @@ class Drivermanager {
       // Check if location services are enabled
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        print("Thrown");
         throw LocationServiceDisabledException(
           'Location services are disabled. Please enable location services in your device settings.',
         );
@@ -147,11 +134,26 @@ class Drivermanager {
     }
   }
 
+  //TODO: will be used for chatrooms I think
   Stream<Driver?> getDriverStream(String driverId) {
     return _collection.doc(driverId).snapshots().map((doc) {
       if (!doc.exists) return null;
       return Driver.fromMap(doc.data() as Map<String, dynamic>, documentId: doc.id);
     });
+  }
+
+  Future<void> stopLiveTracking(String driverId) async {
+    try {
+      await _collection.doc(driverId).update({
+        'activeRoute': null,
+        'isLive': false,
+        'location': null,
+        'lastUpdated': FieldValue.serverTimestamp(),
+      });
+      _locationSubscription?.cancel();
+    } catch (e) {
+      throw Exception('Failed to stop live tracking: $e');
+    }
   }
 
   Stream<List<Driver>> getLiveDriversForRoute(String routeNumber) {

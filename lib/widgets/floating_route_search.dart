@@ -77,7 +77,7 @@ class _FloatingSearchState extends State<FloatingSearch> {
                   routes.map((route) {
                     return InkWell(
                       onTap: () {
-                        print('Tapped on route: ${route.routeNumber}');
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Tapped on route: ${route.routeNumber}')));
                       },
                       child: SearchItem(
                         title: route.routeNumber,
