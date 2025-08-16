@@ -1,6 +1,8 @@
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:wheres_my_bus/models/route.dart';
 import 'package:wheres_my_bus/pages/driver/driver_home.dart';
+import 'package:wheres_my_bus/pages/driver/live_route.dart';
 import 'package:wheres_my_bus/pages/landing_page.dart';
 import 'package:wheres_my_bus/pages/login.dart';
 import 'package:wheres_my_bus/pages/profile.dart';
@@ -30,6 +32,15 @@ final router = GoRouter(
     GoRoute(path: '/passenger', builder: (context, state) => PassengerHome(), routes: [
       GoRoute(path: '/map', builder: (context, state) => LiveMap()),
     ]),
-    GoRoute(path: '/driver', builder: (context, state) => DriverHome()),
+    GoRoute(path: '/driver', builder: (context, state) => DriverHome(), routes: [
+      GoRoute(
+      path: '/live',
+      builder: (context, state) {
+        // Access the extra data
+        final route = state.extra as BusRoute;
+        return LiveRoute(route: route);
+      },
+    ),
+    ]),
   ],
 );

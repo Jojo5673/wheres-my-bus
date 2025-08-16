@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:wheres_my_bus/models/route.dart';
 
-class DriverHome extends StatelessWidget {
-  const DriverHome({super.key});
+class LiveRoute extends StatelessWidget {
+  const LiveRoute({super.key, required this.route});
+  final BusRoute route;
 
   @override
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.black,
        appBar: AppBar(
         title: Text("Driver Dashboard"),
         backgroundColor: colorScheme.primary,
