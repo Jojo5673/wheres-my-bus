@@ -6,8 +6,15 @@ class Driver {
   List<String> assignedRoutes; // Route numbers
   LatLng? location;
   String? activeRoute;
+  bool isLive;
 
-  Driver({required this.id, required this.assignedRoutes, this.location, this.activeRoute});
+  Driver({
+    required this.id, 
+    required this.assignedRoutes, 
+    this.location, 
+    this.activeRoute,
+    this.isLive = false,
+  });
 
   Map<String, dynamic> toMap() {
     return {
@@ -17,6 +24,7 @@ class Driver {
               ? {'latitude': location!.latitude, 'longitude': location!.longitude}
               : null,
       'activeRoute': activeRoute,
+      'isLive': isLive,
       'lastUpdated': FieldValue.serverTimestamp(),
     };
   }
@@ -33,6 +41,7 @@ class Driver {
               )
               : null,
       activeRoute: map['activeRoute'] as String?,
+      isLive: map['isLive'] as bool? ?? false,
     );
   }
 }

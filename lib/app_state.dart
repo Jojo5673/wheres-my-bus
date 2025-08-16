@@ -5,6 +5,10 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:wheres_my_bus/firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wheres_my_bus/models/driver.dart';
+import 'package:wheres_my_bus/models/driverManager.dart';
+import 'package:wheres_my_bus/models/passenger.dart';
+import 'package:wheres_my_bus/models/passengerManager.dart';
 
 enum UserType { passenger, driver }
 
@@ -67,9 +71,15 @@ class AppState extends ChangeNotifier {
       'createdAt': Timestamp.now(),
     });
 
-    await firestore.collection('${type.name}s').doc(user.uid).set({
-      'routes': [],
-    });
+    if (type == UserType.driver){
+      final driverManager = Drivermanager();
+      final driver = Driver(id: user.uid, assignedRoutes: []);
+      await driverManager.create(driver);
+    }else{
+      final passengerManager = Passengermanager();
+      final passenger = Passenger(id: user.uid, favouriteRoutes: []);
+      await passengerManager.create(passenger);
+    }
   }
 
   /// Deletes the user's entry in Firestore and, optionally,

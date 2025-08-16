@@ -89,7 +89,6 @@ class _RouteAdminScreenState extends State<RouteAdminScreen> {
         color: selectedColor,
         polylinePoints: polylinePoints,
         stops: parsedStops, // Now this matches Map<String, LatLng>
-        liveDrivers: [],
       );
 
       await _routeManager.create(route);

@@ -25,4 +25,5 @@ class Passengermanager {
       throw Exception('Failed to update favourites: $e');
     }
   }
+
 }

@@ -6,14 +6,12 @@ class BusRoute {
   Color color;
   List<LatLng> polylinePoints;
   Map<String, LatLng> stops;
-  List<String> liveDrivers;
 
   BusRoute({
     required this.routeNumber,
     required this.color,
     required this.polylinePoints,
     required this.stops,
-    required this.liveDrivers,
   });
 
   Map<String, dynamic> toMap() {
@@ -27,7 +25,6 @@ class BusRoute {
         (key, latLng) =>
             MapEntry(key, {'latitude': latLng.latitude, 'longitude': latLng.longitude}),
       ),
-      'liveDrivers': liveDrivers,
     };
   }
 
@@ -51,7 +48,6 @@ class BusRoute {
             return MapEntry(key, LatLng(0.0, 0.0)); // fallback
           }) ??
           {},
-      liveDrivers: List<String>.from(map['liveDrivers'] ?? []),
     );
   }
 }

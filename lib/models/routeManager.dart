@@ -4,8 +4,6 @@ import 'route.dart';
 class RouteManager {
   final CollectionReference _collection = FirebaseFirestore.instance.collection('routes');
 
-  //TODO: watch method
-
   Future<void> create(BusRoute route) async {
     try {
       await _collection.doc(route.routeNumber).set({
@@ -16,8 +14,6 @@ class RouteManager {
       throw Exception('Failed to create route: $e');
     }
   }
-
-  //TODO: get by ID
 
   Future<List<BusRoute>> getAll() async {
     try {

@@ -38,7 +38,7 @@ class _DriverHomeState extends State<DriverHome> {
 
   void _goLive() {
     if (selectedRoute != null) {
-      //TODO: implement going live with firebase and location stuff
+      //TODO: implement going live with firebase and location stuff, and route list for live drivers n shi
 
       context.push("/driver/live", extra: selectedRoute);
       setState(() {
