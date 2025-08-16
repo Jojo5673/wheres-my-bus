@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wheres_my_bus/models/route.dart';
@@ -13,13 +12,12 @@ class DriverHome extends StatefulWidget {
 
 class _DriverHomeState extends State<DriverHome> {
   BusRoute? selectedRoute;
-  bool isLive = false;
   List<BusRoute> assignedRoutes = [];
 
   void _handleRouteSelect(BusRoute route) {
     setState(() {
-      selectedRoute = selectedRoute == route? null: route;
-      isLive = false; // Reset live status when changing routes
+      selectedRoute =
+          selectedRoute == route ? null : route; // Reset live status when changing routes
     });
   }
 
@@ -34,34 +32,19 @@ class _DriverHomeState extends State<DriverHome> {
   void removeRoute(BusRoute route) {
     setState(() {
       assignedRoutes.remove(route);
-      selectedRoute = selectedRoute == route? null: route;
-      isLive = false;
+      selectedRoute = selectedRoute == route ? null : route;
     });
   }
 
   void _goLive() {
     if (selectedRoute != null) {
-      setState(() {
-        isLive = true;
-      });
-      //TODO: implement going live
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('🚌 Now live on ${selectedRoute!.routeNumber}'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    }
-  }
+      //TODO: implement going live with firebase and location stuff
 
-  void _stopLive() {
-    setState(() {
-      isLive = false;
-    });
-    //TODO: implement stopping live inside to live page
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('🛑 Stopped live tracking'), backgroundColor: Colors.red),
-    );
+      context.push("/driver/live", extra: selectedRoute);
+      setState(() {
+        selectedRoute = null;
+      });
+    }
   }
 
   @override
@@ -70,6 +53,7 @@ class _DriverHomeState extends State<DriverHome> {
     return Scaffold(
       drawer: Drawer(backgroundColor: Theme.of(context).scaffoldBackgroundColor),
       appBar: AppBar(
+        centerTitle: true,
         title: Text("Your Routes"),
         backgroundColor: colorScheme.primary,
         actions: [
@@ -108,14 +92,17 @@ class _DriverHomeState extends State<DriverHome> {
                         onTap: () => _handleRouteSelect(route),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: isSelected ? Colors.green : Colors.grey.shade300,
                               width: isSelected ? 3 : 1,
                             ),
                             borderRadius: BorderRadius.circular(16),
-                            color: isSelected ? const Color.fromARGB(255, 189, 202, 212) : Colors.grey[300],
+                            color:
+                                isSelected
+                                    ? const Color.fromARGB(255, 189, 202, 212)
+                                    : Colors.grey[300],
                           ),
                           child: Stack(
                             children: [
@@ -123,33 +110,24 @@ class _DriverHomeState extends State<DriverHome> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        route.routeNumber,
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: isSelected ? Colors.blue.shade700 : Colors.black,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                    ],
+                                  Text(
+                                    route.routeNumber,
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: isSelected ? Colors.blue.shade700 : Colors.black,
+                                    ),
                                   ),
-                                  const SizedBox(height: 4),
                                   Text(
                                     '${route.stops.length} stops',
                                     style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                                   ),
-                                  const SizedBox(height: 4),
                                   Text(
                                     route.stops.keys.toString(),
                                     style: TextStyle(
                                       fontSize: 16,
                                       color:
-                                          isSelected
-                                              ? Colors.blue.shade600
-                                              : Colors.grey.shade600,
+                                          isSelected ? Colors.blue.shade600 : Colors.grey.shade600,
                                     ),
                                   ),
                                 ],
@@ -186,80 +164,23 @@ class _DriverHomeState extends State<DriverHome> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
-              child: SafeArea(
-                child:
-                    !isLive
-                        ? ElevatedButton(
-                          onPressed: selectedRoute != null ? _goLive : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                selectedRoute != null ? Colors.green : Colors.grey.shade300,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            elevation: selectedRoute != null ? 4 : 0,
-                          ),
-                          child: Text(
-                            selectedRoute != null ? 'Go Live' : 'Select a Route First',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                        )
-                        : Column(
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.green.shade100,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: 12,
-                                    height: 12,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.green,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: AnimatedContainer(
-                                      duration: Duration(milliseconds: 1000),
-                                      curve: Curves.easeInOut,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'LIVE - ${selectedRoute!.routeNumber}',
-                                    style: TextStyle(
-                                      color: Colors.green.shade700,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            ElevatedButton(
-                              onPressed: _stopLive,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 4,
-                              ),
-                              child: const Text(
-                                '🛑 Stop Live Tracking',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
+              child:
+                  selectedRoute != null
+                      ? ElevatedButton(
+                        onPressed: _goLive,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 4,
                         ),
-              ),
+                        child: Text(
+                          'Go Live',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                      : null,
             ),
           ],
         ),
