@@ -77,7 +77,7 @@ class Drivermanager {
       // Check if location services are enabled
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-            print("Thrown");
+        print("Thrown");
         throw LocationServiceDisabledException(
           'Location services are disabled. Please enable location services in your device settings.',
         );
@@ -157,6 +157,30 @@ class Drivermanager {
   Stream<List<Driver>> getLiveDriversForRoute(String routeNumber) {
     return _collection
         .where('activeRoute', isEqualTo: routeNumber)
+        .where('isLive', isEqualTo: true)
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs
+                  .map(
+                    (doc) => Driver.fromMap(doc.data() as Map<String, dynamic>, documentId: doc.id),
+                  )
+                  .toList(),
+        );
+  }
+
+  Stream<List<Driver>> getLiveDriversForRoutes(List<String> routeNumbers) {
+    if (routeNumbers.isEmpty) {
+      return Stream.value([]);
+    }
+
+    // If only one route, use the single route method
+    if (routeNumbers.length == 1) {
+      return getLiveDriversForRoute(routeNumbers.first);
+    }
+
+    return _collection
+        .where('activeRoute', whereIn: routeNumbers)
         .where('isLive', isEqualTo: true)
         .snapshots()
         .map(

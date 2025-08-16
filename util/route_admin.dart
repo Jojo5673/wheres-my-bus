@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:wheres_my_bus/firebase_options.dart';
+import 'package:wheres_my_bus/util/firebase_options.dart';
 import 'package:wheres_my_bus/models/routeManager.dart';
 import 'package:wheres_my_bus/models/route.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';

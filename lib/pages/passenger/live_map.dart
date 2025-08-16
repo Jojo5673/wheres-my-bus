@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:wheres_my_bus/models/driver.dart';
+import 'package:wheres_my_bus/models/driverManager.dart';
 import 'package:wheres_my_bus/models/route.dart';
 import 'package:wheres_my_bus/models/routeManager.dart';
 import 'package:wheres_my_bus/widgets/floating_route_search.dart';
@@ -13,20 +17,42 @@ class LiveMap extends StatefulWidget {
 }
 
 class _LiveMapState extends State<LiveMap> {
-  late GoogleMapController mapController;
+  GoogleMapController? mapController; // Made nullable
   String? _errorMessage;
   bool _permissionsChecked = false;
   Stream<Position>? _positionStream;
   List<LatLng> polylineCoords = [];
   CameraPosition? _lastCameraPosition;
-  List<BusRoute> routes = [];
+
+  final Set<Marker> _driverMarkers = {};
+  final Drivermanager _driverManager = Drivermanager();
+  StreamSubscription<List<Driver>>? _driversSubscription;
   final RouteManager _routeManager = RouteManager();
+  List<BusRoute> routes = [];
 
   @override
   void initState() {
     super.initState();
     _checkPermissionsAndStartStream();
     _fetchRoutes();
+  }
+
+  @override
+  void dispose() {
+    _driversSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _fetchRoutes() async {
+    final newRoutes = await _routeManager.getAll();
+    updateRoutes(newRoutes);
+  }
+
+  void updateRoutes(List<BusRoute> newRoutes) {
+    setState(() {
+      routes = newRoutes;
+    });
+    _listenToLiveDrivers(); // Restart stream with new routes
   }
 
   void _onMapCreated(GoogleMapController controller) async {
@@ -37,35 +63,32 @@ class _LiveMapState extends State<LiveMap> {
     _lastCameraPosition = position;
   }
 
-  Future<void> _fetchRoutes() async {
-    final newRoutes = await _routeManager.getAll();
-    setState(() {
-      routes = newRoutes;
-    });
-  }
-
   Future<void> _goToCurrentLocation() async {
-    // Get current location
+    if (mapController == null) return; // Guard clause
 
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.best),
-    );
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings: LocationSettings(accuracy: LocationAccuracy.best),
+      );
 
-    final tilt = _lastCameraPosition?.tilt ?? 0;
-    final zoom = _lastCameraPosition?.zoom ?? 17;
-    final bearing = _lastCameraPosition?.bearing ?? 0;
+      final tilt = _lastCameraPosition?.tilt ?? 0;
+      final zoom = _lastCameraPosition?.zoom ?? 17;
+      final bearing = _lastCameraPosition?.bearing ?? 0;
 
-    // Move camera to current location
-    mapController.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: LatLng(position.latitude, position.longitude),
-          zoom: zoom,
-          tilt: tilt,
-          bearing: bearing,
+      // Move camera to current location
+      mapController!.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(position.latitude, position.longitude),
+            zoom: zoom,
+            tilt: tilt,
+            bearing: bearing,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      print('Error getting current location: $e');
+    }
   }
 
   Future<void> _checkPermissionsAndStartStream() async {
@@ -118,6 +141,51 @@ class _LiveMapState extends State<LiveMap> {
         _permissionsChecked = true;
       });
     }
+  }
+
+  void _listenToLiveDrivers() {
+    _driversSubscription?.cancel();
+    
+    if (routes.isEmpty) return; // Don't start if no routes
+    
+    _driversSubscription = _driverManager
+        .getLiveDriversForRoutes(routes.map((route) => route.routeNumber).toList())
+        .listen(
+          (drivers) {
+            _updateDriverMarkers(drivers);
+          },
+          onError: (error) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error tracking buses: $error'), backgroundColor: Colors.red),
+              );
+            }
+          },
+        );
+  }
+
+  void _updateDriverMarkers(List<Driver> drivers) {
+    // Clear existing driver markers
+    _driverMarkers.clear();
+
+    // Add new driver markers
+    for (Driver driver in drivers) {
+      if (driver.location != null) {
+        final driverMarker = Marker(
+          markerId: MarkerId('driver_${driver.id}'),
+          position: driver.location!,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          infoWindow: InfoWindow(
+            title: 'Route ${driver.activeRoute}',
+            snippet: 'Live Bus Location',
+          ),
+        );
+
+        _driverMarkers.add(driverMarker);
+      }
+    }
+    
+    setState(() {}); // Trigger rebuild to show updated markers
   }
 
   Widget _buildErrorWidget() {
@@ -196,6 +264,14 @@ class _LiveMapState extends State<LiveMap> {
     return markers;
   }
 
+  // Combine all markers (stops + drivers)
+  Set<Marker> _getAllMarkers() {
+    final Set<Marker> allMarkers = {};
+    allMarkers.addAll(_generateStopMarkers());
+    allMarkers.addAll(_driverMarkers);
+    return allMarkers;
+  }
+
   @override
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
@@ -238,7 +314,7 @@ class _LiveMapState extends State<LiveMap> {
                         mapToolbarEnabled: false,
                         onCameraMove: (position) => _onCameraMove(position),
                         polylines: generatePolylinesFromRoutes(),
-                        markers: _generateStopMarkers(),
+                        markers: _getAllMarkers(), // ← Fixed: Now includes driver markers
                       );
                     }
 
@@ -248,12 +324,12 @@ class _LiveMapState extends State<LiveMap> {
 
             const FloatingSearch(hint: "Add Routes ..."),
             Positioned(
-              bottom: 16, // Custom position
+              bottom: 16,
               right: 16,
               child: FloatingActionButton(
                 backgroundColor: colorScheme.secondary,
                 onPressed: _goToCurrentLocation,
-                child: Icon(Icons.my_location, color: colorScheme.onSecondary,),
+                child: Icon(Icons.my_location, color: colorScheme.onSecondary),
               ),
             ),
           ],
