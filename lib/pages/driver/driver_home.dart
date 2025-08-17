@@ -51,7 +51,6 @@ class _DriverHomeState extends State<DriverHome> {
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      drawer: Drawer(backgroundColor: Theme.of(context).scaffoldBackgroundColor),
       appBar: AppBar(
         centerTitle: true,
         title: Text("Your Routes"),

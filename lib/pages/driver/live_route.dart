@@ -144,16 +144,7 @@ class _LiveRouteState extends State<LiveRoute> {
           centerTitle: true,
           title: Text("Route ${widget.route.routeNumber}"),
           backgroundColor: colorScheme.primary,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.person, color: Colors.white),
-              onPressed: () {
-                context.push('/profile');
-              },
-            ),
-          ],
         ),
-        drawer: Drawer(backgroundColor: Theme.of(context).scaffoldBackgroundColor),
         body: SafeArea(
           child: Column(
             children: [

@@ -46,7 +46,6 @@ class _PassengerHomeState extends State<PassengerHome> {
           ),
         ],
       ),
-      drawer: Drawer(backgroundColor: Theme.of(context).scaffoldBackgroundColor),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
