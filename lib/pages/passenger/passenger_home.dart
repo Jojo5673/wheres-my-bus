@@ -31,14 +31,6 @@ class _PassengerHomeState extends State<PassengerHome> {
   }
 
   @override
-/*Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(title: const Text('Driver Updates')),
-    body: PassengerFeed(passenger: passenger),
-  );
-} */
-
-  @override
   Widget build(BuildContext context) {
     var textTheme = Theme.of(context).textTheme;
     var colorScheme = Theme.of(context).colorScheme;

@@ -44,14 +44,32 @@ class _PassengerFeedState extends State<PassengerFeed> {
           .snapshots();
 
       return StreamBuilder<QuerySnapshot>(
-        stream: stream,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          final docs = snapshot.data!.docs;
-          if (docs.isEmpty) return const Center(child: Text("No messages yet"));
-          return _buildList(docs);
-        },
-      );
+            stream: stream,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      'Error: ${snapshot.error}',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              }
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final docs = snapshot.data?.docs ?? [];
+              if (docs.isEmpty) {
+                return const Center(child: Text("No messages yet"));
+              }
+
+              return _buildList(docs);
+            },
+        );
     }
 
     // >10 favourites: merge multiple queries

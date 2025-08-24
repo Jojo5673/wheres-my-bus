@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wheres_my_bus/models/route.dart';
 import 'package:wheres_my_bus/widgets/route_search.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; //for messages abt route
 
 class DriverHome extends StatefulWidget {
   const DriverHome({super.key});
@@ -36,6 +37,25 @@ class _DriverHomeState extends State<DriverHome> {
     });
   }
 
+  Future<void> _goLive() async {
+  if (selectedRoute != null) {
+    // Add Firestore "driver went live" message
+    await FirebaseFirestore.instance.collection('route_messages').add({
+      'routeNumber': selectedRoute!.routeNumber,
+      'message': 'Driver is now live on route ${selectedRoute!.routeNumber}',
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+
+    // Navigate to live map screen
+    context.push("/driver/live", extra: selectedRoute);
+
+    setState(() {
+      selectedRoute = null;
+    });
+  }
+}
+
+/*
   void _goLive() {
     if (selectedRoute != null) {
       //TODO: implement going live with firebase and location stuff, and route list for live drivers n shi
@@ -46,6 +66,7 @@ class _DriverHomeState extends State<DriverHome> {
       });
     }
   }
+*/
 
   @override
   Widget build(BuildContext context) {
