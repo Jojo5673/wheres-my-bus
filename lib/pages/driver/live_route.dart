@@ -7,6 +7,9 @@ import 'package:wheres_my_bus/models/route.dart';
 import "package:wheres_my_bus/util/exceptions.dart"
     show LocationPermissionException, LocationServiceDisabledException;
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+
 class LiveRoute extends StatefulWidget {
   const LiveRoute({super.key, required this.route});
   final BusRoute route;
@@ -31,6 +34,27 @@ class _LiveRouteState extends State<LiveRoute> {
     _stopLiveTracking();
     super.dispose();
   }
+
+  //code to send driver messages
+  Future<void> _sendDriverMessage(String text) async {
+  try {
+    await FirebaseFirestore.instance.collection('route_messages').add({
+      'routeNumber': widget.route.routeNumber,
+      'message': text,
+      'driverId': driverId,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Message sent')),
+    );
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to send: $e')),
+    );
+  }
+}
 
   Future<void> _startLiveTracking() async {
     try {
@@ -209,7 +233,7 @@ class _LiveRouteState extends State<LiveRoute> {
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow[700]),
-                        onPressed: () {},
+                        onPressed: () => _sendDriverMessage("Departed"),
                         child: const Text(
                           "Depart",
                           style: TextStyle(fontSize: 24, color: Colors.black),
@@ -217,7 +241,7 @@ class _LiveRouteState extends State<LiveRoute> {
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[500]),
-                        onPressed: () {},
+                        onPressed: () => _sendDriverMessage("Bus is Full"),
                         child: const Text(
                           "Full Bus",
                           style: TextStyle(fontSize: 24, color: Colors.white),
@@ -225,7 +249,7 @@ class _LiveRouteState extends State<LiveRoute> {
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.red[400]),
-                        onPressed: () {},
+                        onPressed: () => _sendDriverMessage("Road Closure Reported"),
                         child: const Text(
                           "Report Road Closure",
                           style: TextStyle(fontSize: 24, color: Colors.black),

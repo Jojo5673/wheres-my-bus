@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wheres_my_bus/models/route.dart';
 import 'package:wheres_my_bus/widgets/route_search.dart';
+import 'package:wheres_my_bus/models/passenger.dart'; // For Passenger class
+import 'package:wheres_my_bus/pages/passenger/passenger_feed.dart'; // For PassengerFeed widget
+
 
 class PassengerHome extends StatefulWidget {
   const PassengerHome({super.key});
@@ -26,6 +29,14 @@ class _PassengerHomeState extends State<PassengerHome> {
       _favoriteRoutes.remove(route);
     });
   }
+
+  @override
+/*Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(title: const Text('Driver Updates')),
+    body: PassengerFeed(passenger: passenger),
+  );
+} */
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +94,16 @@ class _PassengerHomeState extends State<PassengerHome> {
                         },
                       ),
             ),
+
+           Expanded(
+              flex: 2,
+              child: PassengerFeed(
+                passenger: Passenger(
+                  id: "dummyPassengerId", // later replace with FirebaseAuth.instance.currentUser!.uid
+                  favouriteRoutes: _favoriteRoutes.map((r) => r.routeNumber).toList(),
+                ),
+              ),
+            ),  //this is for the passenger stuff idek
           ],
         ),
       ),
