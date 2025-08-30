@@ -95,7 +95,7 @@ class _PassengerHomeState extends State<PassengerHome> {
                   favouriteRoutes: _favoriteRoutes.map((r) => r.routeNumber).toList(),
                 ),
               ),
-            ),  //this is for the passenger stuff idek
+            ), 
           ],
         ),
       ),
