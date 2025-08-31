@@ -1,10 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:wheres_my_bus/models/passengerManager.dart';
 import 'package:wheres_my_bus/models/route.dart';
 import 'package:wheres_my_bus/widgets/route_search.dart';
 import 'package:wheres_my_bus/models/passenger.dart'; // For Passenger class
 import 'package:wheres_my_bus/pages/passenger/passenger_feed.dart'; // For PassengerFeed widget
-
 
 class PassengerHome extends StatefulWidget {
   const PassengerHome({super.key});
@@ -14,13 +15,29 @@ class PassengerHome extends StatefulWidget {
 }
 
 class _PassengerHomeState extends State<PassengerHome> {
-  final List<BusRoute> _favoriteRoutes = [];
+  List<BusRoute> _favoriteRoutes = [];
+  final Passengermanager _passengermanager = Passengermanager();
+  final passengerId = FirebaseAuth.instance.currentUser!.uid;
+
+  @override
+  void initState() {
+    super.initState();
+    _getRoutes();
+  }
+
+  Future<void> _getRoutes() async {
+    final newRoutes = await _passengermanager.getFavourites(passengerId);
+    setState(() {
+      _favoriteRoutes = newRoutes;
+    });
+  }
 
   void _addRouteToFavorites(BusRoute route) {
     if (!_favoriteRoutes.contains(route)) {
       setState(() {
         _favoriteRoutes.add(route);
       });
+      _passengermanager.updateFavourites(passengerId, _favoriteRoutes);
     }
   }
 
@@ -28,6 +45,7 @@ class _PassengerHomeState extends State<PassengerHome> {
     setState(() {
       _favoriteRoutes.remove(route);
     });
+    _passengermanager.updateFavourites(passengerId, _favoriteRoutes);
   }
 
   @override
@@ -87,15 +105,10 @@ class _PassengerHomeState extends State<PassengerHome> {
                       ),
             ),
 
-           Expanded(
+            Expanded(
               flex: 2,
-              child: PassengerFeed(
-                passenger: Passenger(
-                  id: "dummyPassengerId", // later replace with FirebaseAuth.instance.currentUser!.uid
-                  favouriteRoutes: _favoriteRoutes.map((r) => r.routeNumber).toList(),
-                ),
-              ),
-            ), 
+              child: PassengerFeed(routes: _favoriteRoutes.map((r) => r.routeNumber).toList()),
+            ),
           ],
         ),
       ),
@@ -103,7 +116,7 @@ class _PassengerHomeState extends State<PassengerHome> {
       // Settings floating button
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.push("/passenger/map");
+          context.push("/passenger/map", extra: _favoriteRoutes);
         },
         backgroundColor: colorScheme.secondary,
         child: Icon(Icons.map, color: colorScheme.onSecondary),

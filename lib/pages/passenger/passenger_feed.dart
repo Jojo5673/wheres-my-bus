@@ -2,12 +2,13 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wheres_my_bus/models/passenger.dart';
+import 'package:wheres_my_bus/models/route.dart';
 
 class PassengerFeed extends StatefulWidget {
-  final Passenger passenger;
+  final List<String> routes;
   final int perQueryLimit;
 
-  const PassengerFeed({super.key, required this.passenger, this.perQueryLimit = 50});
+  const PassengerFeed({super.key, required this.routes, this.perQueryLimit = 50});
 
   @override
   State<PassengerFeed> createState() => _PassengerFeedState();
@@ -24,7 +25,7 @@ class _PassengerFeedState extends State<PassengerFeed> {
 
   @override
   Widget build(BuildContext context) {
-    final favs = widget.passenger.favouriteRoutes;
+    final favs = widget.routes;
 
     if (favs.isEmpty) {
       return const Center(child: Text("No favourite routes selected"));

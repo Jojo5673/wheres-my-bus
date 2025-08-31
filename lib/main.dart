@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wheres_my_bus/routes.dart';
+import 'package:wheres_my_bus/app_routes.dart';
 import 'app_state.dart';
 
 Future<void> main() async {

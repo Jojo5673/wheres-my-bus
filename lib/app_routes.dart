@@ -22,25 +22,39 @@ final router = GoRouter(
           path: '/forgot-password',
           builder: (context, state) {
             final arguments = state.uri.queryParameters;
-            return ForgotPasswordScreen(email: arguments['email'], headerMaxExtent: 200);               
+            return ForgotPasswordScreen(email: arguments['email'], headerMaxExtent: 200);
           },
         ),
       ],
     ),
     GoRoute(path: '/sign-up', builder: (context, state) => Register()),
     GoRoute(path: '/profile', builder: (context, state) => Profile()),
-    GoRoute(path: '/passenger', builder: (context, state) => PassengerHome(), routes: [
-      GoRoute(path: '/map', builder: (context, state) => LiveMap()),
-    ]),
-    GoRoute(path: '/driver', builder: (context, state) => DriverHome(), routes: [
-      GoRoute(
-      path: '/live',
-      builder: (context, state) {
-        // Access the extra data
-        final route = state.extra as BusRoute;
-        return LiveRoute(route: route);
-      },
+    GoRoute(
+      path: '/passenger',
+      builder: (context, state) => PassengerHome(),
+      routes: [
+        GoRoute(
+          path: '/map',
+          builder: (context, state) {
+            final favourite_routes = state.extra as List<BusRoute>;
+            return LiveMap(favourite_routes: favourite_routes);
+          },
+        ),
+      ],
     ),
-    ]),
+    GoRoute(
+      path: '/driver',
+      builder: (context, state) => DriverHome(),
+      routes: [
+        GoRoute(
+          path: '/live',
+          builder: (context, state) {
+            // Access the extra data
+            final route = state.extra as BusRoute;
+            return LiveRoute(route: route);
+          },
+        ),
+      ],
+    ),
   ],
 );

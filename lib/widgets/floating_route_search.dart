@@ -5,9 +5,10 @@ import 'package:wheres_my_bus/models/routeManager.dart';
 import 'package:wheres_my_bus/widgets/search_item.dart';
 
 class FloatingSearch extends StatefulWidget {
-  const FloatingSearch({super.key, required this.hint});
+  const FloatingSearch({super.key, required this.hint, required this.onRouteTap});
 
   final String hint;
+  final Function onRouteTap;
 
   @override
   State<FloatingSearch> createState() => _FloatingSearchState();
@@ -15,7 +16,9 @@ class FloatingSearch extends StatefulWidget {
 
 class _FloatingSearchState extends State<FloatingSearch> {
   List<BusRoute> routes = [];
+  List<BusRoute> queryRoutes = [];
   final RouteManager _routeManager = RouteManager();
+  final FloatingSearchBarController _controller = FloatingSearchBarController();
 
   @override
   void initState() {
@@ -27,6 +30,7 @@ class _FloatingSearchState extends State<FloatingSearch> {
     final newRoutes = await _routeManager.getAll();
     setState(() {
       routes = newRoutes;
+      queryRoutes = routes;
     });
   }
 
@@ -47,6 +51,7 @@ class _FloatingSearchState extends State<FloatingSearch> {
     return FloatingSearchBar(
       hint: widget.hint,
       hintStyle: textTheme.bodyLarge!.copyWith(color: Colors.grey[400]),
+      controller: _controller,
       scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
       transitionDuration: const Duration(milliseconds: 800),
       transitionCurve: Curves.easeInOut,
@@ -60,7 +65,9 @@ class _FloatingSearchState extends State<FloatingSearch> {
       margins: EdgeInsets.fromLTRB(10, 15, 10, 0),
       borderRadius: BorderRadius.all(Radius.circular(20.0)),
       onQueryChanged: (query) {
-        _filterRoutes(query);
+        setState(() {
+          queryRoutes = _filterRoutes(query);
+        });
       },
       // Specify a custom transition to be used for
       // animating between opened and closed stated.
@@ -74,10 +81,10 @@ class _FloatingSearchState extends State<FloatingSearch> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children:
-                  routes.map((route) {
+                  queryRoutes.map((route) {
                     return InkWell(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Tapped on route: ${route.routeNumber}')));
+                      onTap: (){widget.onRouteTap(route);
+                        _controller.close();
                       },
                       child: SearchItem(
                         title: route.routeNumber,
