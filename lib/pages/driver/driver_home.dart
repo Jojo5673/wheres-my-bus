@@ -77,138 +77,142 @@ class _DriverHomeState extends State<DriverHome> {
   @override
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text("Your Routes"),
-        backgroundColor: colorScheme.primary,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.white),
-            onPressed: () {
-              context.push('/profile');
-            },
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: RouteSearch(selectedHandler: addRoute),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.translucent,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text("Your Routes"),
+          backgroundColor: colorScheme.primary,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.person, color: Colors.white),
+              onPressed: () {
+                context.push('/profile');
+              },
             ),
-            // Route List
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: assignedRoutes.length,
-                itemBuilder: (context, index) {
-                  final route = assignedRoutes[index];
-                  final isSelected = selectedRoute?.routeNumber == route.routeNumber;
-
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: Material(
-                      elevation: isSelected ? 8 : 2,
-                      shadowColor: isSelected ? Colors.blue.withOpacity(0.3) : Colors.black12,
-                      borderRadius: BorderRadius.circular(16),
-                      child: InkWell(
+          ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: RouteSearch(selectedHandler: addRoute),
+              ),
+              // Route List
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: assignedRoutes.length,
+                  itemBuilder: (context, index) {
+                    final route = assignedRoutes[index];
+                    final isSelected = selectedRoute?.routeNumber == route.routeNumber;
+      
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: Material(
+                        elevation: isSelected ? 8 : 2,
+                        shadowColor: isSelected ? Colors.blue.withOpacity(0.3) : Colors.black12,
                         borderRadius: BorderRadius.circular(16),
-                        onTap: () => _handleRouteSelect(route),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: isSelected ? Colors.green : Colors.grey.shade300,
-                              width: isSelected ? 3 : 1,
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            color:
-                                isSelected
-                                    ? const Color.fromARGB(255, 189, 202, 212)
-                                    : Colors.grey[300],
-                          ),
-                          child: Stack(
-                            children: [
-                              // Route info
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    route.routeNumber,
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: isSelected ? Colors.blue.shade700 : Colors.black,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${route.stops.length} stops',
-                                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
-                                  ),
-                                  Text(
-                                    route.stops.keys.toString(),
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color:
-                                          isSelected ? Colors.blue.shade600 : Colors.grey.shade600,
-                                    ),
-                                  ),
-                                ],
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => _handleRouteSelect(route),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: isSelected ? Colors.green : Colors.grey.shade300,
+                                width: isSelected ? 3 : 1,
                               ),
-
-                              Positioned(
-                                top: 0,
-                                right: 0,
-                                child: SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: IconButton(
-                                    padding: EdgeInsets.zero,
-                                    iconSize: 24,
-                                    icon: const Icon(Icons.delete),
-                                    onPressed: () => removeRoute(route),
-                                    style: IconButton.styleFrom(
-                                      foregroundColor: Colors.grey.shade500,
+                              borderRadius: BorderRadius.circular(16),
+                              color:
+                                  isSelected
+                                      ? const Color.fromARGB(255, 189, 202, 212)
+                                      : Colors.grey[300],
+                            ),
+                            child: Stack(
+                              children: [
+                                // Route info
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      route.routeNumber,
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: isSelected ? Colors.blue.shade700 : Colors.black,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${route.stops.length} stops',
+                                      style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                                    ),
+                                    Text(
+                                      route.stops.keys.toString(),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color:
+                                            isSelected ? Colors.blue.shade600 : Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+      
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: IconButton(
+                                      padding: EdgeInsets.zero,
+                                      iconSize: 24,
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () => removeRoute(route),
+                                      style: IconButton.styleFrom(
+                                        foregroundColor: Colors.grey.shade500,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-
-            // Action Button
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              child:
-                  selectedRoute != null
-                      ? ElevatedButton(
-                        onPressed: _goLive,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          elevation: 4,
-                        ),
-                        child: Text(
-                          'Go Live',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                      )
-                      : null,
-            ),
-          ],
+      
+              // Action Button
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                child:
+                    selectedRoute != null
+                        ? ElevatedButton(
+                          onPressed: _goLive,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 4,
+                          ),
+                          child: Text(
+                            'Go Live',
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        )
+                        : null,
+              ),
+            ],
+          ),
         ),
       ),
     );
