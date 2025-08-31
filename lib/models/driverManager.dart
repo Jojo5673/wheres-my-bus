@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart' hide LocationServiceDisabledException;
+import 'package:wheres_my_bus/models/route.dart';
+import 'package:wheres_my_bus/models/routeManager.dart';
 import 'dart:async';
 import 'driver.dart';
 import "package:wheres_my_bus/util/exceptions.dart"
@@ -9,6 +11,7 @@ import "package:wheres_my_bus/util/exceptions.dart"
 class Drivermanager {
   final CollectionReference _collection = FirebaseFirestore.instance.collection('drivers');
   StreamSubscription<Position>? _locationSubscription;
+  final RouteManager _routeManager = RouteManager();
 
   Future<void> create(Driver driver) async {
     try {
@@ -32,12 +35,41 @@ class Drivermanager {
     }
   }
 
-//TODO: get assigned
+  Future<List<BusRoute>> getAssigned(String driverId) async {
+    try {
+      DocumentSnapshot doc = await _collection.doc(driverId).get();
 
-  Future<void> updateAssigned(String driverId, List<String> routes) async {
+      if (!doc.exists) {
+        throw Exception('Driver not found');
+      }
+
+      Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+      List<dynamic> assignedRouteNumbers = data?['assignedRoutes'] ?? [];
+
+      // Convert to List<String>
+      List<String> routeNumbers = assignedRouteNumbers.cast<String>();
+
+      if (routeNumbers.isEmpty) {
+        return [];
+      }
+
+      // Get all routes from RouteManager
+      List<BusRoute> allRoutes = await _routeManager.getAll();
+
+      // Filter to only include favorite routes
+      List<BusRoute> assignedRoutes =
+          allRoutes.where((route) => routeNumbers.contains(route.routeNumber)).toList();
+
+      return assignedRoutes;
+    } catch (e) {
+      throw Exception('Failed to get favourite routes: $e');
+    }
+  }
+
+  Future<void> updateAssigned(String driverId, List<BusRoute> routes) async {
     try {
       await _collection.doc(driverId).update({
-        'assignedRoutes': routes,
+        'assignedRoutes': routes.map((route) => route.routeNumber).toList(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
@@ -113,9 +145,7 @@ class Drivermanager {
       await _handleLocationPermission();
       await setActiveRoute(driverId, routeNumber);
 
-      const LocationSettings locationSettings = LocationSettings(
-        accuracy: LocationAccuracy.high,
-      );
+      const LocationSettings locationSettings = LocationSettings(accuracy: LocationAccuracy.high);
 
       _locationSubscription = Geolocator.getPositionStream(
         locationSettings: locationSettings,

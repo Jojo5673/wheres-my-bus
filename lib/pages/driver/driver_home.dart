@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:wheres_my_bus/models/driverManager.dart';
 import 'package:wheres_my_bus/models/route.dart';
 import 'package:wheres_my_bus/widgets/route_search.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; //for messages abt route
@@ -14,6 +16,21 @@ class DriverHome extends StatefulWidget {
 class _DriverHomeState extends State<DriverHome> {
   BusRoute? selectedRoute;
   List<BusRoute> assignedRoutes = [];
+  final Drivermanager _drivermanager = Drivermanager();
+  final driverId = FirebaseAuth.instance.currentUser!.uid;
+
+  @override
+  void initState() {
+    super.initState();
+    _getRoutes();
+  }
+
+  Future<void> _getRoutes() async {
+    final newRoutes = await _drivermanager.getAssigned(driverId);
+    setState(() {
+      assignedRoutes = newRoutes;
+    });
+  }
 
   void _handleRouteSelect(BusRoute route) {
     setState(() {
@@ -27,6 +44,7 @@ class _DriverHomeState extends State<DriverHome> {
       setState(() {
         assignedRoutes.add(route);
       });
+      _drivermanager.updateAssigned(driverId, assignedRoutes);
     }
   }
 
@@ -35,38 +53,26 @@ class _DriverHomeState extends State<DriverHome> {
       assignedRoutes.remove(route);
       selectedRoute = selectedRoute == route ? null : route;
     });
+    _drivermanager.updateAssigned(driverId, assignedRoutes);
   }
 
   Future<void> _goLive() async {
-  if (selectedRoute != null) {
-    // Add Firestore "driver went live" message
-    await FirebaseFirestore.instance.collection('route_messages').add({
-      'routeNumber': selectedRoute!.routeNumber,
-      'message': 'Driver is now live on route ${selectedRoute!.routeNumber}',
-      'timestamp': FieldValue.serverTimestamp(),
-    });
-
-    // Navigate to live map screen
-    context.push("/driver/live", extra: selectedRoute);
-
-    setState(() {
-      selectedRoute = null;
-    });
-  }
-}
-
-/*
-  void _goLive() {
     if (selectedRoute != null) {
-      //TODO: implement going live with firebase and location stuff, and route list for live drivers n shi
+      // Add Firestore "driver went live" message
+      await FirebaseFirestore.instance.collection('route_messages').add({
+        'routeNumber': selectedRoute!.routeNumber,
+        'message': 'Driver is now live on route ${selectedRoute!.routeNumber}',
+        'timestamp': FieldValue.serverTimestamp(),
+      });
 
+      // Navigate to live map screen
       context.push("/driver/live", extra: selectedRoute);
+
       setState(() {
         selectedRoute = null;
       });
     }
   }
-*/
 
   @override
   Widget build(BuildContext context) {
