@@ -7,6 +7,7 @@ import 'package:wheres_my_bus/pages/landing_page.dart';
 import 'package:wheres_my_bus/pages/login.dart';
 import 'package:wheres_my_bus/pages/profile.dart';
 import 'package:wheres_my_bus/pages/register.dart';
+import 'package:wheres_my_bus/pages/info.dart';
 import 'package:wheres_my_bus/pages/passenger/live_map.dart';
 import 'package:wheres_my_bus/pages/passenger/passenger_home.dart';
 
@@ -29,6 +30,7 @@ final router = GoRouter(
     ),
     GoRoute(path: '/sign-up', builder: (context, state) => Register()),
     GoRoute(path: '/profile', builder: (context, state) => Profile()),
+    GoRoute(path: '/info', builder: (context, state) => InfoPage()),
     GoRoute(
       path: '/passenger',
       builder: (context, state) => PassengerHome(),
@@ -56,5 +58,6 @@ final router = GoRouter(
         ),
       ],
     ),
+
   ],
 );

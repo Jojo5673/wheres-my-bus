@@ -58,7 +58,14 @@ class _PassengerHomeState extends State<PassengerHome> {
         title: Text("Routes"),
         centerTitle: true,
         backgroundColor: colorScheme.primary,
-        actions: [
+        
+        leading: IconButton(
+        icon: const Icon(Icons.info_outline, color: Colors.white),
+        onPressed: () {
+          context.push('/info');  
+        },
+       ),
+       actions: [
           IconButton(
             icon: const Icon(Icons.person, color: Colors.white),
             onPressed: () {
@@ -105,13 +112,40 @@ class _PassengerHomeState extends State<PassengerHome> {
                       ),
             ),
 
-            Expanded(
-              flex: 2,
-              child: PassengerFeed(routes: _favoriteRoutes.map((r) => r.routeNumber).toList()),
+            const SizedBox(height: 20),
+
+
+        Row(
+            children: [
+              const Expanded(child: Divider(thickness: 1)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  "Driver Messages",
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const Expanded(child: Divider(thickness: 1)),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+        
+          Expanded(
+            flex: 2,
+            child: PassengerFeed(
+              routes: _favoriteRoutes.map((r) => r.routeNumber).toList(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+    ),
+
+      
 
       // Settings floating button
       floatingActionButton: FloatingActionButton(

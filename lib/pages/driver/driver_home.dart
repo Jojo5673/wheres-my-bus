@@ -82,7 +82,14 @@ class _DriverHomeState extends State<DriverHome> {
         centerTitle: true,
         title: Text("Your Routes"),
         backgroundColor: colorScheme.primary,
-        actions: [
+       
+        leading: IconButton(
+        icon: const Icon(Icons.info_outline, color: Colors.white),
+        onPressed: () {
+          context.push('/info');
+          },
+         ),
+          actions: [
           IconButton(
             icon: const Icon(Icons.person, color: Colors.white),
             onPressed: () {
@@ -96,8 +103,21 @@ class _DriverHomeState extends State<DriverHome> {
           children: [
             Padding(
               padding: const EdgeInsets.all(16.0),
+              child: Text(
+                "Welcome, Driver!",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(16.0),
               child: RouteSearch(selectedHandler: addRoute),
             ),
+
             // Route List
             Expanded(
               child: ListView.builder(
