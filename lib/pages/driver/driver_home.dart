@@ -40,7 +40,7 @@ class _DriverHomeState extends State<DriverHome> {
   }
 
   void addRoute(BusRoute route) {
-    if (!assignedRoutes.contains(route)) {
+    if (!assignedRoutes.any((assignedRoute) => assignedRoute.routeNumber == route.routeNumber)) {
       setState(() {
         assignedRoutes.add(route);
       });
