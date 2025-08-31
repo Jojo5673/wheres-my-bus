@@ -115,7 +115,6 @@ class Drivermanager {
 
       const LocationSettings locationSettings = LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 10, // Update every 10 meters
       );
 
       _locationSubscription = Geolocator.getPositionStream(
@@ -123,7 +122,7 @@ class Drivermanager {
       ).listen(
         (Position position) async {
           final location = LatLng(position.latitude, position.longitude);
-          await updateLocation(driverId, location);
+          updateLocation(driverId, location);
         },
         onError: (error) {
           print('Location stream error: $error');

@@ -24,6 +24,7 @@ class _LiveMapState extends State<LiveMap> {
   List<LatLng> polylineCoords = [];
   CameraPosition? _lastCameraPosition;
   Map<String, int> _routeBusIndex = {}; // Track current bus index for each route
+  Set<String> _hiddenRoutes = {};
 
   final Set<Marker> _driverMarkers = {};
   final Drivermanager _driverManager = Drivermanager();
@@ -170,12 +171,16 @@ class _LiveMapState extends State<LiveMap> {
         );
   }
 
+  // Update driver markers to respect visibility
   void _updateDriverMarkers(List<Driver> drivers) {
     // Clear existing driver markers
     _driverMarkers.clear();
 
     // Add new driver markers
     for (Driver driver in drivers) {
+      // Skip hidden routes
+      if (_hiddenRoutes.contains(driver.activeRoute)) continue;
+
       if (driver.location != null) {
         final driverMarker = Marker(
           markerId: MarkerId('driver_${driver.id}'),
@@ -198,6 +203,9 @@ class _LiveMapState extends State<LiveMap> {
     Set<Polyline> polylines = {};
 
     for (BusRoute route in routes) {
+      // Skip hidden routes
+      if (_hiddenRoutes.contains(route.routeNumber)) continue;
+
       if (route.polylinePoints.isNotEmpty) {
         polylines.add(
           Polyline(
@@ -223,6 +231,9 @@ class _LiveMapState extends State<LiveMap> {
     Set<Marker> markers = {};
 
     for (BusRoute route in routes) {
+      // Skip hidden routes
+      if (_hiddenRoutes.contains(route.routeNumber)) continue;
+
       route.stops.forEach((stopName, stopLocation) {
         HSVColor hsvColor = HSVColor.fromColor(route.color);
         markers.add(
@@ -246,6 +257,18 @@ class _LiveMapState extends State<LiveMap> {
     allMarkers.addAll(_driverMarkers);
     return allMarkers;
   }
+
+void _toggleRouteVisibility(String routeNumber) {
+  setState(() {
+    if (_hiddenRoutes.contains(routeNumber)) {
+      _hiddenRoutes.remove(routeNumber);
+    } else {
+      _hiddenRoutes.add(routeNumber);
+      // Reset bus index when hiding a route
+      _routeBusIndex.remove(routeNumber);
+    }
+  });
+}
 
   bool _routeHasActiveBuses(String routeNumber) {
     return _driverMarkers.any(
@@ -338,100 +361,130 @@ class _LiveMapState extends State<LiveMap> {
     );
   }
 
-  void _showRouteList() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Container(
-            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header
-                Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
+void _showRouteList() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(  // ← Add StatefulBuilder here
+        builder: (BuildContext context, StateSetter setDialogState) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Container(
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Container(
+                    padding: EdgeInsets.fromLTRB(20,5,5,5),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Select Route',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close, color: Colors.white),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Select Route',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ],
-                  ),
-                ),
-                // Route list
-                Flexible(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: routes.length,
-                    itemBuilder: (context, index) {
-                      final route = routes[index];
-                      final hasActiveBuses = _routeHasActiveBuses(route.routeNumber);
-                      final busCount = _getBusesForRoute(route.routeNumber).length;
+                  // Route list
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: routes.length,
+                      itemBuilder: (context, index) {
+                        final route = routes[index];
+                        final hasActiveBuses = _routeHasActiveBuses(route.routeNumber);
+                        final busCount = _getBusesForRoute(route.routeNumber).length;
 
-                      return ListTile(
-                        enabled: hasActiveBuses,
-                        leading: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: hasActiveBuses ? route.color : Colors.grey,
-                            shape: BoxShape.circle,
+                        return ListTile(
+                          enabled: hasActiveBuses,
+                          leading: Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: hasActiveBuses ? route.color : Colors.grey,
+                              shape: BoxShape.circle,
+                            ),
                           ),
-                        ),
-                        title: Text(
-                          'Route ${route.routeNumber}',
-                          style: TextStyle(
-                            color: hasActiveBuses ? null : Colors.grey,
-                            fontWeight: FontWeight.w600,
+                          title: Text(
+                            'Route ${route.routeNumber}',
+                            style: TextStyle(
+                              color: hasActiveBuses ? null : Colors.grey,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        subtitle: Text(
-                          hasActiveBuses
-                              ? '$busCount active bus${busCount == 1 ? '' : 'es'}'
-                              : 'No active buses',
-                          style: TextStyle(color: hasActiveBuses ? null : Colors.grey),
-                        ),
-                        trailing:
+                          subtitle: Text(
                             hasActiveBuses
-                                ? Icon(Icons.directions_bus, color: route.color)
-                                : Icon(Icons.directions_bus_outlined, color: Colors.grey),
-                        onTap:
-                            hasActiveBuses
-                                ? () {
-                                  Navigator.of(context).pop();
-                                  _cycleToBusOnRoute(route.routeNumber);
-                                }
-                                : null,
-                      );
-                    },
+                                ? '$busCount active bus${busCount == 1 ? '' : 'es'}'
+                                : 'No active buses',
+                            style: TextStyle(color: hasActiveBuses ? null : Colors.grey),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Visibility toggle button
+                              IconButton(
+                                icon: Icon(
+                                  _hiddenRoutes.contains(route.routeNumber)
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color:
+                                      _hiddenRoutes.contains(route.routeNumber)
+                                          ? Colors.grey
+                                          : route.color,
+                                ),
+                                onPressed: () {
+                                  // Update both the main widget and dialog
+                                  _toggleRouteVisibility(route.routeNumber);
+                                  setDialogState(() {}); // ← Refresh dialog
+                                },
+                                tooltip:
+                                    _hiddenRoutes.contains(route.routeNumber)
+                                        ? 'Show route'
+                                        : 'Hide route',
+                              ),
+                              // Bus icon
+                              hasActiveBuses
+                                  ? Icon(Icons.directions_bus, color: route.color)
+                                  : Icon(Icons.directions_bus_outlined, color: Colors.grey),
+                            ],
+                          ),
+                          onTap:
+                              hasActiveBuses && !_hiddenRoutes.contains(route.routeNumber)
+                                  ? () {
+                                    Navigator.of(context).pop();
+                                    _cycleToBusOnRoute(route.routeNumber);
+                                  }
+                                  : null,
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
-  }
+          );
+        },
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -501,10 +554,7 @@ class _LiveMapState extends State<LiveMap> {
                     heroTag: "location", // Add unique hero tag
                     backgroundColor: colorScheme.secondary,
                     onPressed: _goToCurrentLocation,
-                    child: Icon(
-                      Icons.my_location,
-                      color: colorScheme.onSecondary,
-                    ),
+                    child: Icon(Icons.my_location, color: colorScheme.onSecondary),
                   ),
                 ],
               ),
