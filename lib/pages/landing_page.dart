@@ -28,17 +28,23 @@ class _LandingPageState extends State<LandingPage> {
         _startRedirectTimer();
       }
     });
-    appState = context.read<AppState>();
-    if (appState == null){
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error: Cannot read app state")));
+    setState(() {
+      appState = context.read<AppState>();
+    });
+    if (appState == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Error: Cannot read app state")));
     }
   }
 
-  void _startRedirectTimer() {
-    _redirectTimer = Timer(Duration(seconds: 2), () {
+  void _startRedirectTimer() async {
+    _redirectTimer = Timer(Duration(seconds: 2), () async {
       if (!mounted) return; // Safety check
 
       if (appState!.loggedIn) {
+        await appState!.refreshUserType();
+        if (!mounted) return;
         final userType = appState!.userType;
         //print("User is logged in, redirecting to $userType");
         if (userType == UserType.driver) {
@@ -69,44 +75,33 @@ class _LandingPageState extends State<LandingPage> {
               child: Center(
                 child: Text(
                   "Where's My Bus?",
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Arial',
-                  ),
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, fontFamily: 'Arial'),
                 ),
               ),
             ),
             // Logo
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: Image.asset(
-                'assets/images/logo.jpeg',
-                height: 240,
-                fit: BoxFit.contain,
-              ),
+              child: Image.asset('assets/images/logo.jpeg', height: 240, fit: BoxFit.contain),
             ),
             // Buttons - only show if not logged in
             Padding(
-              padding: const EdgeInsets.only(
-                bottom: 40.0,
-                left: 20.0,
-                right: 20.0,
-              ),
-              child:_showContent
-                ? () {
-                  if (appState!.loggedIn) {
-                    return Column(
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 16),
-                        Text('Welcome back!'),
-                      ],
-                    );
-                  }
-                  return LoginButtons();
-                }()
-                : SizedBox.shrink(),
+              padding: const EdgeInsets.only(bottom: 40.0, left: 20.0, right: 20.0),
+              child:
+                  _showContent
+                      ? () {
+                        if (appState!.loggedIn) {
+                          return Column(
+                            children: [
+                              CircularProgressIndicator(),
+                              SizedBox(height: 16),
+                              Text('Welcome back!'),
+                            ],
+                          );
+                        }
+                        return LoginButtons();
+                      }()
+                      : SizedBox.shrink(),
             ),
           ],
         ),
@@ -114,7 +109,6 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 }
-
 
 class LoginButtons extends StatelessWidget {
   const LoginButtons({super.key});
@@ -128,16 +122,11 @@ class LoginButtons extends StatelessWidget {
           height: 60, // half of the screen
           width: double.infinity,
           child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             onPressed: () {
               context.push('/sign-in');
             },
-            child: Text(
-              "Sign in",
-              style: TextStyle(fontSize: 24, color: Colors.white),
-            ),
+            child: Text("Sign in", style: TextStyle(fontSize: 24, color: Colors.white)),
           ),
         ),
         SizedBox(height: 20),
@@ -145,16 +134,11 @@ class LoginButtons extends StatelessWidget {
           height: 60,
           width: double.infinity,
           child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.yellow[700],
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow[700]),
             onPressed: () {
               context.push('/sign-up');
             },
-            child: Text(
-              "Register",
-              style: TextStyle(fontSize: 24, color: Colors.black),
-            ),
+            child: Text("Register", style: TextStyle(fontSize: 24, color: Colors.black)),
           ),
         ),
       ],

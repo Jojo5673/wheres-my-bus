@@ -53,66 +53,68 @@ class _PassengerHomeState extends State<PassengerHome> {
     var textTheme = Theme.of(context).textTheme;
     var colorScheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Routes"),
-        centerTitle: true,
-        backgroundColor: colorScheme.primary,
-        
-        leading: IconButton(
-        icon: const Icon(Icons.info_outline, color: Colors.white),
-        onPressed: () {
-          context.push('/info');  
-        },
-       ),
-       actions: [
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.white),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.translucent,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Routes"),
+          centerTitle: true,
+          backgroundColor: colorScheme.primary,
+          leading: IconButton(
+            icon: const Icon(Icons.info_outline, color: Colors.white),
             onPressed: () {
-              context.push('/profile');
+              context.push('/info');
             },
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Welcome, Passenger!", style: textTheme.titleMedium),
-            const SizedBox(height: 20),
-            RouteSearch(selectedHandler: _addRouteToFavorites),
-            const SizedBox(height: 30),
-            Text("Favourite Routes:", style: textTheme.bodyMedium),
-            const SizedBox(height: 10),
-            Expanded(
-              child:
-                  _favoriteRoutes.isEmpty
-                      ? Center(
-                        child: Text(
-                          "No favourite routes yet.",
-                          style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                        ),
-                      )
-                      : ListView.builder(
-                        itemCount: _favoriteRoutes.length,
-                        itemBuilder: (context, index) {
-                          final route = _favoriteRoutes[index];
-                          return Card(
-                            color: Colors.green[900],
-                            child: ListTile(
-                              title: Text(route.routeNumber, style: textTheme.bodyMedium),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.white),
-                                onPressed: () => _removeRoute(route),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.person, color: Colors.white),
+              onPressed: () {
+                context.push('/profile');
+              },
             ),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Welcome, Passenger!", style: textTheme.titleMedium),
+              const SizedBox(height: 20),
+              RouteSearch(selectedHandler: _addRouteToFavorites),
+              const SizedBox(height: 30),
+              Text("Favourite Routes:", style: textTheme.bodyMedium),
+              const SizedBox(height: 10),
+              Expanded(
+                child:
+                    _favoriteRoutes.isEmpty
+                        ? Center(
+                          child: Text(
+                            "No favourite routes yet.",
+                            style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                          ),
+                        )
+                        : ListView.builder(
+                          itemCount: _favoriteRoutes.length,
+                          itemBuilder: (context, index) {
+                            final route = _favoriteRoutes[index];
+                            return Card(
+                              color: Colors.green[900],
+                              child: ListTile(
+                                title: Text(route.routeNumber, style: textTheme.bodyMedium),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.white),
+                                  onPressed: () => _removeRoute(route),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+              ),
 
-            const SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
 
         Row(
@@ -134,18 +136,13 @@ class _PassengerHomeState extends State<PassengerHome> {
 
           const SizedBox(height: 10),
 
-        
-          Expanded(
-            flex: 2,
-            child: PassengerFeed(
-              routes: _favoriteRoutes.map((r) => r.routeNumber).toList(),
-            ),
+              Expanded(
+                flex: 2,
+                child: PassengerFeed(routes: _favoriteRoutes.map((r) => r.routeNumber).toList()),
+              ),
+            ],
           ),
-        ],
-      ),
-    ),
-
-      
+        ),
 
       // Settings floating button
       floatingActionButton: FloatingActionButton(
@@ -154,6 +151,7 @@ class _PassengerHomeState extends State<PassengerHome> {
         },
         backgroundColor: colorScheme.secondary,
         child: Icon(Icons.map, color: colorScheme.onSecondary),
+      ),
       ),
     );
   }
